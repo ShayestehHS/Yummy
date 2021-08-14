@@ -1,0 +1,243 @@
+{% extends 'base.html' %}
+{% load static index %}
+
+{# Title #}
+{% block title %}{{ restaurant.name }}{% endblock title %}
+
+{# Specific css #}
+{% block css %}
+	<!-- Radio and check inputs -->
+	<link href="{% static 'css/skins/square/grey.css' %}" rel="stylesheet">
+
+	<!-- Gallery -->
+	<link href="{% static 'css/slider-pro.min.css' %}" rel="stylesheet">
+
+	<!-- Map -->
+	<link href='https://api.mapbox.com/mapbox-gl-js/v0.44.2/mapbox-gl.css' rel='stylesheet'/>
+{% endblock css %}
+
+<!-- SubHeader =============================================== -->
+{% block SubHeader %}
+	<section class="parallax-window" data-parallax="scroll" data-image-src="img/sub_header_2.jpg"
+	         data-natural-width="1400"
+	         data-natural-height="470">
+		<div id="subheader">
+			<div id="sub_content">
+				<div id="thumb"><img src="{{ restaurant.logo.url }}" alt="logo"></div>
+				<div class="rating">
+					{{ restaurant.rating }}
+					( <small><a href="{% url 'detail_restaurant' 2 %}">{{ review.count }} reviews</a></small> )
+				</div>
+				<h1>{{ restaurant.name }}</h1>
+				<div>
+					<em>
+						{% for type in restaurant.restaurant_type %}
+							{{ type }}{% if not forloop.last %} /{% endif %}
+						{% endfor %}
+					</em>
+				</div>
+				<div><i class="icon_pin"></i> {{ restaurant.address }} ,<strong>Delivery charge:</strong>
+					{{ restaurant.delivery_charge }}$
+				</div>
+			</div><!-- End sub_content -->
+		</div><!-- End subheader -->
+	</section><!-- End section -->
+
+	<div id="position">
+		<div class="container">
+			<ul>
+				<li><a href="{% url 'home' %}">Home</a></li>
+				<li><a href="{% url 'list' 1 %}">All restaurants</a></li>
+				<li>{{ restaurant.name }}</li>
+			</ul>
+			<a href="#0" class="search-overlay-menu-btn"><i class="icon-search-6"></i> Search</a>
+		</div>
+	</div><!-- Position -->
+
+{% endblock SubHeader %}
+<!-- End SubHeader ============================================ -->
+
+<!-- Content ================================================== -->
+{% block content %}
+	<div class="container margin_60_35">
+		<div class="row">
+
+			<div class="col-md-4">
+				<p><a class="btn_map" href="{% url 'menu' restaurant.id %}">Menu</a></p>
+				<p>
+					<a class="btn_map" id="view_on_map" data-toggle="collapse" href="#collapseMap"
+					   role="button" aria-expanded="false" aria-controls="collapseExample"
+					>View on map</a>
+				</p>
+				<!-- map-->
+				<div class="collapse" id="collapseMap">
+					<div id='map'>
+						<input type="hidden" id="lat" value="{{ restaurant.lat }}">
+						<input type="hidden" id="long" value="{{ restaurant.long }}">
+						<input type="hidden" id="mapbox_token" value="{{ mapbox_access_token }}">
+						<img id="center_logo"
+						     alt="center_logo"
+						     src="{% static 'img/Restaurant-icon-vector-by-Hoeda80-580x386.png' %}" hidden>
+						<img id="mapBox_logo" src="{% static 'img/mapbox-logo.png' %}" alt="mapbox_logo">
+					</div>
+				</div>
+				<div class="box_style_2">
+					<h4 class="nomargin_top">Opening time <i class="icon_clock_alt pull-right"></i></h4>
+					<ul class="opening_list">
+						{% for time in today_weekday %}
+							{% if  time.from_hour != None %}
+								<li>
+									{{ time.day }}<span>{{ time.from_hour }} - {{ time.to_hour }}</span>
+								</li>
+							{% else %}
+								<li>{{ time.day }} <span class="label label-danger">Closed</span></li>
+							{% endif %}
+						{% endfor %}
+					</ul>
+				</div>
+				<div class="box_style_2 hidden-xs" id="help">
+					<i class="icon_lifesaver"></i>
+					<h4>Need <span>Help?</span></h4>
+					<a href="tel://{{ restaurant.phone_number }}" class="phone">{{ restaurant.phone_number }}</a>
+					<small>Only answered in working time</small>
+				</div>
+			</div>
+
+			<div class="col-md-8">
+				<div class="box_style_2">
+					<h2 class="inner">Description</h2>
+
+					<div id="Img_carousel" class="slider-pro">
+						<div class="sp-slides">
+							{% for pic in image %}
+								<div class="sp-slide">
+									<img alt="" class="sp-image"
+									     data-src="{{ pic.image.url }}">
+								</div>
+							{% endfor %}
+						</div>
+						<div class="sp-thumbnails">
+							{% for pic in image %}
+								<img alt="" class="sp-thumbnail"
+								     src="{{ pic.image.url }}">
+							{% endfor %}
+
+						</div>
+					</div>
+					<h3>About us</h3>
+					<p>{{ restaurant.description|safe }}</p>
+					<div id="summary_review">
+						<div id="general_rating">
+							{{ review.count }} Reviews
+							<div class="rating">
+								<input type="number" value="{{ restaurant.rating }}" readonly>
+							</div>
+						</div>
+						{% if request.user.is_authenticated %}
+							<form id="reviForm" data-url_ajax="{% url 'save_review' restaurant.id %}">
+								{% csrf_token %}
+								<div class="row" id="rating_summary">
+									<div class="col-md-10">
+										<ul>
+											<li>
+												<div class="row">
+													<div class="col-md-6">
+														Food Quality
+													</div>
+													{{ form.food_quality }}
+												</div>
+											</li>
+											<li>
+												<div class="row">
+													<div class="col-md-6">
+														Price
+													</div>
+													{{ form.price }}
+												</div>
+											</li>
+											<li>
+												<div class="row">
+													<div class="col-md-6">
+														Punctuality
+													</div>
+													{{ form.punctuality }}
+												</div>
+											</li>
+											<li>
+												<div class="row">
+													<div class="col-md-6">
+														Courtesy
+													</div>
+													{{ form.courtesy }}
+												</div>
+											</li>
+											<li>
+												<div class="row">
+													<div class="col-md-6">
+														Description {{ form.description }}
+													</div>
+
+												</div>
+											</li>
+										</ul>
+									</div>
+								</div><!-- End row -->
+								<hr class="styled">
+								<input type="submit" class="btn_1 add_bottom_15" data-toggle="modal"
+								       data-target="#myReview" value="Leave a review">
+							</form>
+						{% endif %}
+					</div><!-- End summary_review -->
+
+					{% for review in review %}
+						<div class="review_strip_single">
+							<img src="{% static 'img/avatar1.jpg' %}" alt="" class="img-circle">
+							<small> - {{ review.created_date }} -</small>
+							<h4>{{ review.user.username }}</h4>
+							<p>{{ review.description }}</p>
+							<div class="row">
+								<div class="col-md-3">
+									<div class="rating">
+										<input type="number" value="{{ review.food_quality }}" readonly>
+									</div>
+									Food Quality
+								</div>
+								<div class="col-md-3">
+									<div class="rating">
+										<input type="number" value="{{ review.price }}" readonly>
+									</div>
+									Price
+								</div>
+								<div class="col-md-3">
+									<div class="rating">
+										<input type="number" value="{{ review.punctuality }}" readonly>
+									</div>
+									Punctuality
+								</div>
+								<div class="col-md-3">
+									<div class="rating">
+										<input type="number" value="{{ review.courtesy }}" readonly>
+									</div>
+									Courtesy
+								</div>
+							</div><!-- End row -->
+						</div><!-- End review strip -->
+					{% endfor %}
+
+				</div><!-- End box_style_1 -->
+			</div>
+		</div><!-- End row -->
+	</div><!-- End container -->
+
+{% endblock content %}
+<!-- End Content =============================================== -->
+
+<!-- SPECIFIC SCRIPTS -->
+{% block js %}
+	<script src="{% static 'js/map_single.js' %}"></script>
+	<script src="{% static 'js/jquery.sliderPro.min.js' %}"></script>
+	<script src="{% static 'js/jquery.sliderPro.min.js' %}"></script>
+	<script src="{% static 'js/Custom js/detail_restaurant.js' %}"></script>
+	<script src="https://api.mapbox.com/mapbox-gl-js/v0.44.2/mapbox-gl.js"></script>
+	<script src="{% static 'js/Custom js/map.js' %}"></script>
+{% endblock js %}

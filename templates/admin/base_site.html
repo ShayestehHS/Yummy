@@ -1,0 +1,16 @@
+{% extends 'admin/base.html' %}
+{% load static %}
+
+{# Customize tab of browser #}
+{% block title %}Admin panel{% endblock title %}
+
+{# Customize background #}
+{% block extrahead %}
+	<link rel="icon" href="{% static 'img/icon/Yummy_icon-1.png' %}">
+{% endblock extrahead %}
+
+{# Customize header #}
+{% block branding %}
+	<a href="{% url 'home' %}"><img src="{% static 'img/logo.png' %}" alt=""></a>
+{% endblock branding %}
+

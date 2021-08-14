@@ -1,0 +1,74 @@
+<div>
+	<h3 style="border-bottom:1px solid black;">Restaurant:
+		{% if order_list.restaurant %}
+			<a href="{% url 'menu' order_list.restaurant.id %}">
+				{{ order_list.restaurant.name }}</a>
+		{% else %}
+			<a href="{% url 'menu' restaurant.id %}">
+				{{ restaurant.name }}</a>
+		{% endif %}
+	</h3>
+
+	<h3>Your order <i class="icon_cart_alt pull-right"></i></h3>
+	<table id="order_table" class="table table_summary">
+		<tbody>
+		<p id="empty_message" hidden>Your order list is empty</p>
+		{% for order in order_list.cartItems.all %}
+			<tr id="order_{{ order.item.id }}">
+				<td>
+					<a href="#/" class="remove_item"><i class="icon_minus_alt"></i></a>
+					<strong class="order_quantity">{{ order.quantity }}x</strong>
+					<span class="order_name">{{ order.item.name }}</span>
+				</td>
+				<td>
+					<strong class="pull-right order_total_price remove_item_price">${{ order.total_price }}</strong>
+				</td>
+			</tr>
+		{% endfor %}
+		<tr id="order_parent" hidden>{# Template tr for order_table #}
+			<td>
+				<a href="#/" class="remove_item"><i class="icon_minus_alt"></i></a>
+				<strong class="order_quantity "></strong>
+				<span class="order_name "></span>
+			</td>
+			<td>
+				<strong class="pull-right order_total_price remove_item_price"></strong>
+			</td>
+		</tr>
+		</tbody>
+	</table>
+	<hr>
+
+	<table class="table table_summary">
+		<tbody>
+		<tr>
+			<input type="hidden" id="delivery_charge" value="{{ order_list.restaurant.delivery_charge }}">
+			<td class="d_charge"
+			    {% if not order_detail.deliveryMethod == 'Delivery' %}hidden{% endif %}>
+				Delivery charge <span id="td_DCharge" class="pull-right"
+			>${{ order_detail.order.restaurant.delivery_charge }}</span>
+			</td>
+		</tr>
+		<tr>
+			<td class="total">
+				TOTAL <span id="total" class="pull-right"></span>
+			</td>
+		</tr>
+		</tbody>
+	</table>
+	<hr>
+</div>
+<input type="hidden" id="url_removeItem" data-url_ajax="{% url 'UpdateCarts' %}">
+<script>
+    // If restaurant doesn't have take_away => user cannot to check it
+    // If restaurant doesn't have delivery => user cannot to check it
+    const take_away_check = $('#takeCheck');
+    const delivery_check = $('#deliveryCheck');
+    {% if not restaurant.is_take_away and restaurant.is_delivery %}
+        take_away_check.attr("disabled", true);
+        delivery_check.attr("checked", true);
+    {% elif  restaurant.is_take_away and not restaurant.is_delivery %}
+        delivery_check.attr("disabled", true);
+        take_away_check.attr("checked", true);
+    {% endif %}
+</script>

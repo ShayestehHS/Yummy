@@ -1,0 +1,48 @@
+<div id="tools">
+	<div class="row">
+		<div class="col-md-3 col-sm-3 col-xs-6">
+			<div class="styled-select">
+				<select name="sort_rating" id="sort_rating" data-url_ajax="{% url 'sort_restaurants' 1 %}">
+					<option value="name" selected>Sort by name</option>
+					<option value="lower">Lowest ranking</option>
+					<option value="higher">Highest ranking</option>
+				</select>
+			</div>
+		</div>
+		<div class="col-md-9 col-sm-9 hidden-xs">
+			{% if searched_key %}
+				<input type="hidden" id="searched_key" value="{{ searched_key }}">
+				{% if '/grid_list/' in request.path %}
+					<a class="bt_filters" href="{% url 'list' 1 %}?key={{ searched_key }}">
+						<i class="icon-th-list"></i>
+					</a>
+				{% elif '/list_page/' in request.path %}
+					<a class="bt_filters" href="{% url 'grid_list' 1 %}?key={{ searched_key }}">
+						<i class="icon-th"></i>
+					</a>
+				{% endif %}
+			{% elif searched_tag %}
+				<input type="hidden" id="searched_tag" value="{{ searched_tag }}">
+				{% if  '/grid_list/' in request.path %}
+					<a href="{% url 'list_tag' searched_tag 1 %}" class="bt_filters">
+						<i class="icon-th-list"></i>
+					</a>
+				{% elif '/list_page/' in request.path %}
+					<a href="{% url 'grid_tag' searched_tag 1 %}" class="bt_filters">
+						<i class="icon-th"></i>
+					</a>
+				{% endif %}
+			{% else %}
+				{% if  '/grid_list/' in request.path %}
+					<a href="{% url 'list' 1 %}" class="bt_filters">
+						<i class="icon-th-list"></i>
+					</a>
+				{% elif '/list_page/' in request.path %}
+					<a href="{% url 'grid_list' 1 %}" class="bt_filters">
+						<i class="icon-th"></i>
+					</a>
+				{% endif %}
+			{% endif %}
+		</div>
+	</div>
+</div><!--End tools -->

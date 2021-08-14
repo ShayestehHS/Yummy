@@ -1,0 +1,236 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load add_class %}
+
+{% block title %}New driver{% endblock title %}
+
+<!-- Radio and check inputs -->
+{% block css %}
+	<link href="{% static 'css/skins/square/grey.css' %}" rel="stylesheet">
+	<style>
+        li {
+            list-style-type: none;
+            display: inline;
+        }
+	</style>
+{% endblock css %}
+
+<!-- SubHeader =============================================== -->
+{% block SubHeader %}
+	<section class="parallax-window" id="short" data-parallax="scroll" data-image-src="img/sub_header_cart.jpg"
+	         data-natural-width="1400" data-natural-height="350">
+		<div id="subheader">
+			<div id="sub_content">
+				<h1>Work with us</h1>
+				<p>Qui debitis meliore ex, tollit debitis conclusionemque te eos.</p>
+				<p></p>
+			</div><!-- End sub_content -->
+		</div><!-- End subheader -->
+	</section><!-- End section -->
+
+	<div id="position">
+		<div class="container">
+			<ul>
+				<li><a href="{% url 'home' %}">Home</a></li>
+				<li>Submit driver</li>
+			</ul>
+			<a href="#0" class="search-overlay-menu-btn"><i class="icon-search-6"></i> Search</a>
+		</div>
+	</div><!-- Position -->
+{% endblock SubHeader %}
+<!-- End SubHeader ============================================ -->
+
+<!-- Content ================================================== -->
+{% block content %}
+	<div class="container margin_60_35">
+		<div class="main_title margin_mobile">
+			<h2 class="nomargin_top">Flexible Job and Great fees</h2>
+			<p>
+				Cum doctus civibus efficiantur in imperdiet deterruisset.
+			</p>
+		</div>
+		<div class="row">
+			<div class="col-md-6 wow fadeIn" data-wow-delay="0.1s">
+				<div class="feature_2">
+					<i class="icon_currency"></i>
+					<h3>Great Fees</h3>
+					<p>
+						Lorem ipsum dolor sit amet, vix erat audiam ei. Cum doctus civibus efficiantur in. Nec id tempor
+						imperdiet deterruisset, doctus volumus explicari qui ex, appareat similique an usu.
+					</p>
+				</div>
+			</div>
+			<div class="col-md-6 wow fadeIn" data-wow-delay="0.2s">
+				<div class="feature_2">
+					<i class="icon_easel"></i>
+					<h3>Growing possibility</h3>
+					<p>
+						Lorem ipsum dolor sit amet, vix erat audiam ei. Cum doctus civibus efficiantur in. Nec id tempor
+						imperdiet deterruisset, doctus volumus explicari qui ex, appareat similique an usu.
+					</p>
+				</div>
+			</div>
+		</div><!-- End row -->
+		<div class="row">
+			<div class="col-md-6 wow fadeIn" data-wow-delay="0.3s">
+				<div class="feature_2">
+					<i class="icon_mobile"></i>
+					<h3>Manage your own orders via App</h3>
+					<p>
+						Lorem ipsum dolor sit amet, vix erat audiam ei. Cum doctus civibus efficiantur in. Nec id tempor
+						imperdiet deterruisset, doctus volumus explicari qui ex, appareat similique an usu.
+					</p>
+				</div>
+			</div>
+			<div class="col-md-6 wow fadeIn" data-wow-delay="0.4s">
+				<div class="feature_2">
+					<i class="icon_map_alt"></i>
+					<h3>Work in a small area</h3>
+					<p>
+						Lorem ipsum dolor sit amet, vix erat audiam ei. Cum doctus civibus efficiantur in. Nec id tempor
+						imperdiet deterruisset, doctus volumus explicari qui ex, appareat similique an usu.
+					</p>
+				</div>
+			</div>
+		</div><!-- End row -->
+		<div class="row">
+			<div class="col-md-6 wow fadeIn" data-wow-delay="0.5s">
+				<div class="feature_2">
+					<i class="icon_clock_alt"></i>
+					<h3>Flexible time</h3>
+					<p>
+						Lorem ipsum dolor sit amet, vix erat audiam ei. Cum doctus civibus efficiantur in. Nec id tempor
+						imperdiet deterruisset, doctus volumus explicari qui ex, appareat similique an usu.
+					</p>
+				</div>
+			</div>
+			<div class="col-md-6 wow fadeIn" data-wow-delay="0.6s">
+				<div class="feature_2">
+					<i class="icon_calendar"></i>
+					<h3>Flexible days</h3>
+					<p>
+						Lorem ipsum dolor sit amet, vix erat audiam ei. Cum doctus civibus efficiantur in. Nec id tempor
+						imperdiet deterruisset, doctus volumus explicari qui ex, appareat similique an usu.
+					</p>
+				</div>
+			</div>
+		</div><!-- End row -->
+	</div><!-- End container -->
+
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-6 nopadding features-intro-img">
+				<div class="features-bg img_2">
+					<div class="features-img">
+					</div>
+				</div>
+			</div>
+			<div class="col-md-6 nopadding">
+				<div class="features-content">
+					<h3>"What you'll need"</h3>
+					<ul class="list_ok">
+						<li>A bicycle or scooter/motorbike with relevant safety equipment (road safety is a huge must
+							for
+							us!).
+						</li>
+						<br>
+						<li>Smartphone - iPhone 4s or above or Android 4.3 or above.</li>
+						<br>
+						<li>The right to work in the USA.</li>
+					</ul>
+				</div>
+			</div>
+		</div>
+	</div><!-- End container-fluid  -->
+
+	<div class="container margin_60">
+		<div class="main_title margin_mobile">
+			<h2 class="nomargin_top">Please submit the form below</h2>
+			<p>
+				Cum doctus civibus efficiantur in imperdiet deterruisset.
+			</p>
+		</div>
+		<div class="row">
+			<div class="col-md-8 col-md-offset-2">
+				<form method="POST" action="{% url 'submit_driver' %}">
+					{% csrf_token %}
+					<div class="row">
+						<div class="col-md-4 col-sm-4">
+							<div class="form-group">
+								<label>First name</label>
+								<input type="text" value="{{ request.user.first_name }}" class="form-control"
+								       id="name_contact"
+								       readonly>
+							</div>
+						</div>
+						<div class="col-md-4 col-sm-4">
+							<div class="form-group">
+								<label>Last name</label>
+								<input type="text" value="{{ request.user.last_name }}" class="form-control"
+								       id="lastname_contact"
+								       readonly>
+							</div>
+						</div>
+						<div class="col-md-4 col-sm-4">
+							<div class="form-group">
+								<label>Username</label>
+								<input type="text" value="{{ request.user.username }}" class="form-control"
+								       id="lastname_contact"
+								       readonly>
+							</div>
+						</div>
+					</div><!-- End row  -->
+					<div class="row">
+						<div class="col-md-6 col-sm-6">
+							<div class="form-group">
+								<label>Email:</label>
+								<input type="email" id="email_contact" name="email" class="form-control"
+								       value="{{ request.user.email }}" readonly>
+							</div>
+						</div>
+						<div class="col-md-6 col-sm-6">
+							<div class="form-group">
+								<label>Phone number:</label>
+								{{ form.phone_number|add_class:"form-control" }}
+							</div>
+						</div>
+					</div><!-- End row  -->
+					<div class="row">
+						<div class="col-md-6">
+							<div class="form-group">
+								<h5>Do you have a motorbike or scooter?</h5>
+								<label>{{ form.motorbike |add_class:'icheck' }}</label>
+							</div>
+						</div>
+						<div class="col-md-6">
+							<div class="form-group">
+								<h5>Are you a student?</h5>
+								<label>{{ form.student |add_class:'icheck' }}</label>
+							</div>
+						</div>
+					</div><!-- End row  -->
+					<div class="row">
+						<div class="col-md-6">
+							<div class="form-group">
+								<h5>Do you have a driving license?</h5>
+								<label>{{ form.driver_lic |add_class:'icheck' }}</label>
+							</div>
+						</div>
+
+						<div class="col-md-6">
+							<div class="form-group">
+								<h5>Do you have an iPhone or Android mobile?</h5>
+								<label>{{ form.mobile |add_class:'icheck' }}</label>
+							</div>
+						</div>
+					</div><!-- End row  -->
+					<div class="text-center">
+						<button class="btn_full_outline">Submit</button>
+					</div>
+				</form>
+			</div><!-- End col  -->
+		</div><!-- End row  -->
+	</div><!-- End container  -->
+
+{% endblock content %}
+<!-- End Content =============================================== -->

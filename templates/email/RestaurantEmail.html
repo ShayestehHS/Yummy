@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>{{ title }}</title>
+</head>
+<body>
+<div class="container">
+	<p>Username of owner : {{ username }}</p>
+	<p>Restaurant Name : {{ restaurant_name }}</p>
+	<p>Restaurant City : {{ restaurant_city }}</p>
+	<p>Restaurant Email : {{ email }}</p>
+	<p>Restaurant Website : {{ restaurant_website }}</p>
+
+	<br>
+	<br>
+
+	<p>If You want see detail info about this person , just click in
+		<a href="http://127.0.0.1:8000/admin/Yummy/restaurant/{{ restaurant_id }}/change/">here</a>
+	</p>
+</div>
+</body>
+</html>

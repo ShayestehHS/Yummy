@@ -1,0 +1,107 @@
+{% extends 'base.html' %}
+{% load add_class %}
+{% load static %}
+{% load socialaccount %}
+
+{% block title %}Login{% endblock title %}
+
+{% block css %}
+	<link rel="stylesheet" href="{% static 'login/login1.css' %}"/>
+
+	<style>
+		{% if SUForm.errors %}
+			{# Make SignUpForm scrollable #}
+            .sign-up {
+                padding-top: 20px;
+            }
+		{% endif %}
+
+		{# Make login page unscrollable #}
+        html {
+            overflow: hidden;
+        }
+	</style>
+{% endblock css %}
+
+{% block content %}
+	<p class="tip">Click on button in image container</p>
+	<div class="cont">
+		<div class="form sign-in">
+			<form action="{% url 'login' %}" method="POST" autocomplete="false">
+				{% csrf_token %}
+				<input type="hidden" name="next" value="{{ next|default:'/' }}">
+				<h2>Welcome back,</h2>
+				<label>
+					<span>Email</span>
+					<input type="email" name="email"/>
+				</label>
+				<label>
+					<span>Password</span>
+					<input type="password" name="password"/>
+				</label>
+				<a href="{% url 'password_reset' %}"><p class="forgot-pass">Forgot password?</p></a>
+				<button type="submit" class="submit">Sign In</button>
+			</form>
+		</div>
+		<div class="sub-cont">
+			<div class="img">
+				<div class="img__text m--up">
+					<h2>New here?</h2>
+					<p>Sign up and discover great amount of new opportunities!</p>
+				</div>
+				<div class="img__text m--in">
+					<h2>One of us?</h2>
+					<p>If you already has an account, just sign in. We've missed you!</p>
+				</div>
+				<div class="img__btn">
+					<span class="m--up">Sign Up</span>
+					<span class="m--in">Sign In</span>
+				</div>
+			</div>
+			<div class="form sign-up">
+				<form id="signUp_form" action="{% url 'sign_up' %}" method="POST">
+					{% csrf_token %}
+
+					<h2>Time to feel like home,</h2>
+					<div class="row">
+						<label class="col-md-offset-2 col-md-4">
+							<span>Name</span>
+							{{ SUForm.first_name }}
+						</label>
+						<label class="col-md-4">
+							<span>Family</span>
+							{{ SUForm.last_name }}
+						</label>
+					</div>
+					<label>
+						{{ SUForm.username.errors }}
+						<span>Username</span>
+						{{ SUForm.username }}
+					</label>
+
+					<label>
+						{{ SUForm.email.errors }}
+						<span>Email</span>
+						{{ SUForm.email }}
+					</label>
+					<div class="row">
+						<label class="col-md-offset-2 col-md-4">
+							{{ SUForm.password.errors }}
+							<span>Password</span>
+							{{ SUForm.password }}
+						</label>
+						<label class="col-md-4">
+							<span>Confirm Password</span>
+							{{ SUForm.confirm_password }}
+						</label>
+					</div>
+					<button type="submit" class="submit">Sign Up</button>
+				</form>
+			</div>
+		</div>
+	</div>
+{% endblock content %}
+
+{% block js %}
+	<script src="{% static 'login/login.js' %}"></script>
+{% endblock js %}

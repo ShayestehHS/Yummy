@@ -1,0 +1,104 @@
+{% load odd %}
+{% load static %}
+<div class="col-md-3">
+	<form id="FilterForm" data-url_ajax="{% url 'filterAJAX' 1 %}">
+		{% csrf_token %}
+		<div id="filters_col">
+			<a data-toggle="collapse" href="#collapseFilters" aria-expanded="false"
+			   aria-controls="collapseFilters"
+			   id="filters_col_bt" class="collapsed">Filters <i class="icon-minus-1 pull-right"></i>
+			</a>
+			<div class="collapse" id="collapseFilters">
+				{# List of all tags #}
+				<div class="filter_type" id="tag_list">
+					<h6>Type</h6>
+					<ul>
+						<li>
+							<label>
+								<input type="checkbox" data-number="0" class="tag_name" data-tag="all" checked>
+								All <small>({{ allRestaurant_Count }})</small>
+							</label>
+						</li>
+						{% for tag in tags %}
+							<li>
+								<label>
+									<input type="checkbox" data-number="{{ forloop.counter }}"
+									       class="tick_mark tag_name" name="tag" data-tag="{{ tag }}" checked>
+									{{ tag }} <small>({{ tag.num_tag }})</small>
+								</label>
+								<i class="color_{{ forloop.counter|odd:8 }}"></i>
+							</li>
+						{% endfor %}
+					</ul>
+				</div>
+				<div class="filter_type">
+					<h6>Rating</h6>
+					<ul>
+						<li>
+							<label>
+								<input type="radio" name="rating" value="5" checked>
+								<span class="rating">
+								<i class="icon_star voted"></i>
+								<i class="icon_star voted"></i>
+								<i class="icon_star voted"></i>
+								<i class="icon_star voted"></i>
+								<i class="icon_star voted"></i>
+							</span>
+							</label>
+						</li>
+						<li>
+							<label>
+								<input type="radio" name="rating" value="4">
+								<span class="rating">
+								<i class="icon_star voted"></i>
+								<i class="icon_star voted"></i>
+								<i class="icon_star voted"></i>
+								<i class="icon_star voted"></i>
+							</span>
+							</label>
+						</li>
+						<li>
+							<label>
+								<input type="radio" name="rating" value="3">
+								<span class="rating">
+								<i class="icon_star voted"></i>
+								<i class="icon_star voted"></i>
+								<i class="icon_star voted"></i>
+							</span>
+							</label>
+						</li>
+						<li>
+							<label>
+								<input type="radio" name="rating" value="2">
+								<span class="rating">
+								<i class="icon_star voted"></i>
+								<i class="icon_star voted"></i>
+							</span>
+							</label>
+						</li>
+						<li>
+							<label>
+								<input type="radio" name="rating" value="1">
+								<span class="rating">
+								<i class="icon_star voted"></i>
+							</span>
+							</label>
+						</li>
+					</ul>
+				</div>
+				<div class="filter_type">
+					<h6>Options</h6>
+					<ul class="nomargin">
+						<li><label><input type="checkbox" name="deliveryMethod" id="isDelivery" checked>Delivery</label>
+						</li>
+						<li><label><input type="checkbox" name="deliveryMethod" id="isTakeAway" checked>Take Away</label></li>
+					</ul>
+					<ul class="PopularOption">
+						<li><label><input name="popularity" id="isPopular" type="checkbox">Popular</label></li>
+					</ul>
+				</div>
+				<input type="submit" id="submitForm" value="Filter" class="btn-submit btn_full">
+			</div><!--End collapse -->
+		</div><!--End filters col-->
+	</form>
+</div><!--End col-md -->

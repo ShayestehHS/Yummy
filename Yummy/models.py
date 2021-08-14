@@ -1,0 +1,170 @@
+import os
+
+from ckeditor.fields import RichTextField
+from django.db import models
+from mapbox import Geocoder
+from taggit.managers import TaggableManager
+
+from Users.models import User
+from Yummy_site.settings import MAPBOX_KEY
+from utility import Compress
+
+
+def get_upload_path_for_logo(instance, filename):
+    return os.path.join('Restaurant', f'{instance.name}', filename)
+
+
+def get_upload_path_for_image(instance, filename):
+    return os.path.join('Restaurant', f'{instance.restaurant.name}', 'image',
+                        filename)
+
+
+def Get_default_user():
+    user = User.objects.get(username='shayestehhs')
+    return user
+
+
+class Restaurant(models.Model):
+    owner = models.OneToOneField(User, related_name='owner',
+                                 on_delete=models.CASCADE, null=True,
+                                 blank=True)
+    name = models.CharField(max_length=40, unique=True, null=True,
+                            help_text="Maximum length is 40")
+    logo = models.ImageField(upload_to=get_upload_path_for_logo, null=True)
+    tags = TaggableManager()
+    phone_number = models.IntegerField(null=True)
+    email = models.EmailField(null=True)
+    website_url = models.URLField(null=True)
+    postal_code = models.IntegerField(null=True)
+    rating = models.DecimalField(decimal_places=3, max_digits=4,
+                                 blank=True, null=True)
+    description = RichTextField(null=True)
+    delivery_charge = models.IntegerField(null=True,
+                                          help_text="Just whole numbers are acceptabe.")
+    is_delivery = models.BooleanField(default=False)
+    is_take_away = models.BooleanField(default=False)
+    is_popular = models.BooleanField(default=False)
+    is_submit = models.BooleanField(default=False,
+                                    help_text="Only superusers can submit.")
+    # Address
+    address = models.CharField(max_length=60, default='None')
+    long = models.DecimalField(max_digits=8, decimal_places=6,
+                               default=51.337888)
+    lat = models.DecimalField(max_digits=8, decimal_places=6,
+                              default=35.699784)
+    city = models.CharField(max_length=15, null=False)
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            # on 'Create'
+            self.logo = Compress.compress_image(self.logo, 30)
+            geocoder = Geocoder(access_token=MAPBOX_KEY)
+            response = geocoder.reverse(lat=self.lat, lon=self.long)
+            features = sorted(response.geojson()['features'],
+                              key=lambda x: x['place_name'])
+            for f in features:
+                if f.get('place_type') == ['place'] or f.get('place_type') == [
+                    'region']:
+                    self.address = f.get('place_name')
+                    break
+
+        super(Restaurant, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.name
+
+
+class OpeningTime(models.Model):
+    WEEKDAYS = [
+        ("Saturday", "Saturday"),
+        ("Sunday", "Sunday"),
+        ("Monday", "Monday"),
+        ("Tuesday", "Tuesday"),
+        ("Wednesday", "Wednesday"),
+        ("Thursday", "Thursday"),
+        ("Friday", "Friday"),
+    ]
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE,
+                                   related_name='Opening_time', unique=False)
+    weekday = models.CharField(choices=WEEKDAYS, max_length=9, unique=False)
+    from_hour = models.TimeField(null=True, blank=True, unique=False)
+    to_hour = models.TimeField(null=True, blank=True, unique=False)
+
+    class Meta:
+        ordering = ('weekday', 'from_hour')
+
+    def __unicode__(self):
+        return f'restaurant name:{self.restaurant.name} :: {self.get_weekday_display()}: {self.from_hour} - {self.to_hour}'
+
+
+class RestaurantImage(models.Model):
+    """ Image of slider in detail_restaurant.html"""
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE,
+                                   default=None)
+    image = models.FileField(upload_to=get_upload_path_for_image)
+
+    def delete(self, using=None, keep_parents=True):
+        # Delete Photo when => user delete image
+        imgPath = self.image.path
+        if os.path.isfile(imgPath):
+            os.remove(imgPath)
+        # Call the "real" save() method.
+        super(RestaurantImage, self).delete()
+
+    def save(self, *args, **kwargs):
+        self.image = Compress.compress_image(self.image)
+        if os.path.isfile(self.image.path):
+            os.remove(self.image.path)
+        super(RestaurantImage, self).save(*args, **kwargs)
+
+    def __str__(self):
+        return self.image.name
+
+
+class RestaurantReview(models.Model):
+    decimal_help_text = "Maximum number is 9999.999"
+    restaurant = models.ForeignKey(to=Restaurant, on_delete=models.CASCADE)
+    user = models.ForeignKey(default=Get_default_user, to=User,
+                             on_delete=models.CASCADE)
+
+    food_quality = models.DecimalField(decimal_places=3, max_digits=4,
+                                       help_text=decimal_help_text)
+    price = models.DecimalField(decimal_places=3, max_digits=4,
+                                help_text=decimal_help_text)
+    punctuality = models.DecimalField(decimal_places=3, max_digits=4,
+                                      help_text=decimal_help_text)
+    courtesy = models.DecimalField(decimal_places=3, max_digits=4,
+                                   help_text=decimal_help_text)
+    description = models.TextField(max_length=200,
+                                   help_text="Maximum length is 200")
+
+    created_date = models.DateField(auto_now_add=True)
+
+    def delete(self, using=None, keep_parents=True):
+        count = self.restaurant.restaurantreview_set.count()
+        # Calculating average of rates
+        last_average = self.restaurant.rating
+        sum_all_field = (
+                self.food_quality + self.price + self.punctuality + self.courtesy)
+        average_rating = ((last_average * count * 4) - sum_all_field) / (
+                4 * (count - 1))
+
+        restaurant = Restaurant.objects.filter(pk=self.restaurant.pk).first()
+        restaurant.update(rating=average_rating)
+        super(RestaurantReview, self).delete()
+
+    def save(self, *args, **kwargs):
+        count = self.restaurant.restaurantreview_set.count()
+        # Calculating average of rates
+        last_average = self.restaurant.rating if self.restaurant.rating is not None else 0
+        sum_all_field = (
+                self.food_quality + self.price + self.punctuality + self.courtesy)
+        average_rating = ((last_average * count * 4) + sum_all_field) / (
+                4 * (count + 1))
+        restaurant = Restaurant.objects.filter(pk=self.restaurant.pk).first()
+        restaurant.save(rating=average_rating)
+        super(RestaurantReview, self).save(*args,
+                                           **kwargs)  # Call the "real" save() method.
+
+    def __str__(self):
+        return f'{self.restaurant.name} : {self.user.username}'

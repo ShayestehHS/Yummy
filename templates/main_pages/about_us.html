@@ -1,0 +1,175 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{# Title #}
+{% block title %}About us{% endblock title %}
+
+<!-- SubHeader =============================================== -->
+{% block SubHeader %}
+	<section class="parallax-window" id="short"
+	         data-parallax="scroll" data-image-src="{% static 'img/about_us.jpg' %}"
+	         data-natural-width="1900" data-natural-height="900">
+
+		<div id="subheader">
+			<div id="sub_content">
+				<h1>About us</h1>
+				<p>Yummy: Where the food is the star.</p>
+				<p></p>
+			</div><!-- End sub_content -->
+		</div><!-- End subheader -->
+	</section><!-- End section -->
+
+	<!-- Start Position -->
+	<div id="position">
+		<div class="container">
+			<ul>
+				<li><a href="{% url 'home' %}">Home</a></li>
+				<li>About us</li>
+			</ul>
+		</div>
+	</div>
+	<!-- End Position -->
+
+{% endblock SubHeader %}
+<!-- End SubHeader =============================================== -->
+
+<!-- Content ================================================== -->
+{% block content %}
+
+	<div class="container margin_60_35">
+		<div class="row">
+			<div class="col-md-4">
+				<h3 class="nomargin_top">Some words about us</h3>
+				<p>
+					Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+					incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+					quis nostrud exercitation ullamco laboris nisi.
+				</p>
+				<p>
+					Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+					incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+					quis nostrud exercitation ullamco laboris nisi.
+				</p>
+				<h4>Mission</h4>
+				<p>
+					Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+					incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+					quis nostrud exercitation ullamco laboris nisi.
+				</p>
+				<p>
+					Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+					incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+					quis nostrud exercitation ullamco laboris nisi.
+				</p>
+				<h4>Filosofy</h4>
+				<p>
+					Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+					incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+					quis nostrud exercitation ullamco laboris nisi.I
+				</p>
+			</div>
+			<div class="col-md-7 col-md-offset-1 text-right hidden-sm hidden-xs">
+				<img src="{% static 'img/devices.jpg' %}" alt="" class="img-responsive">
+			</div>
+		</div><!-- End row -->
+		<hr class="more_margin">
+		<div class="main_title">
+			<h2 class="nomargin_top">Quick food quality feautures</h2>
+			<p>
+				Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+			</p>
+		</div>
+		<div class="row">
+			<div class="col-md-6 wow fadeIn" data-wow-delay="0.1s">
+				<div class="feature">
+					<i class="icon_building"></i>
+					<h3><span>+ 1000</span> Restaurants</h3>
+					<p>
+						Lorem ipsum dolor sit amet, vix erat audiam ei. Cum doctus civibus efficiantur in. Nec id tempor
+						imperdiet deterruisset, doctus volumus explicari qui ex, appareat similique an usu.
+					</p>
+				</div>
+			</div>
+			<div class="col-md-6 wow fadeIn" data-wow-delay="0.2s">
+				<div class="feature">
+					<i class="icon_documents_alt"></i>
+					<h3><span>+1000</span> Food Menu</h3>
+					<p>
+						Lorem ipsum dolor sit amet, vix erat audiam ei. Cum doctus civibus efficiantur in. Nec id tempor
+						imperdiet deterruisset, doctus volumus explicari qui ex, appareat similique an usu.
+					</p>
+				</div>
+			</div>
+		</div><!-- End row -->
+		<div class="row">
+			<div class="col-md-6 wow fadeIn" data-wow-delay="0.3s">
+				<div class="feature">
+					<i class="icon_bag_alt"></i>
+					<h3><span>Delivery</span> or Takeaway</h3>
+					<p>
+						Lorem ipsum dolor sit amet, vix erat audiam ei. Cum doctus civibus efficiantur in. Nec id tempor
+						imperdiet deterruisset, doctus volumus explicari qui ex, appareat similique an usu.
+					</p>
+				</div>
+			</div>
+			<div class="col-md-6 wow fadeIn" data-wow-delay="0.4s">
+				<div class="feature">
+					<i class="icon_mobile"></i>
+					<h3><span>Mobile</span> support</h3>
+					<p>
+						Lorem ipsum dolor sit amet, vix erat audiam ei. Cum doctus civibus efficiantur in. Nec id tempor
+						imperdiet deterruisset, doctus volumus explicari qui ex, appareat similique an usu.
+					</p>
+				</div>
+			</div>
+		</div><!-- End row -->
+		<div class="row">
+			<div class="col-md-6 wow fadeIn" data-wow-delay="0.5s">
+				<div class="feature">
+					<i class="icon_wallet"></i>
+					<h3><span>Cash</span> payment</h3>
+					<p>
+						Lorem ipsum dolor sit amet, vix erat audiam ei. Cum doctus civibus efficiantur in. Nec id tempor
+						imperdiet deterruisset, doctus volumus explicari qui ex, appareat similique an usu.
+					</p>
+				</div>
+			</div>
+			<div class="col-md-6 wow fadeIn" data-wow-delay="0.6s">
+				<div class="feature">
+					<i class="icon_creditcard"></i>
+					<h3><span>Secure card</span> payment</h3>
+					<p>
+						Lorem ipsum dolor sit amet, vix erat audiam ei. Cum doctus civibus efficiantur in. Nec id tempor
+						imperdiet deterruisset, doctus volumus explicari qui ex, appareat similique an usu.
+					</p>
+				</div>
+			</div>
+		</div><!-- End row -->
+	</div><!-- End container -->
+
+	<div class="container-fluid">
+		<div class="row">
+			<div class="col-md-6 nopadding features-intro-img">
+				<div class="features-bg">
+					<div class="features-img">
+					</div>
+				</div>
+			</div>
+			<div class="col-md-6 nopadding">
+				<div class="features-content">
+					<h3>"We try to be the best"</h3>
+					<p>
+						Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed a lorem quis neque interdum
+						consequat ut sed sem. Duis quis tempor nunc. Interdum et malesuada fames ac ante ipsum primis in
+						faucibus.
+					</p>
+					<p>
+						Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+						incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam.
+					</p>
+				</div>
+			</div>
+		</div>
+	</div><!-- End container-fluid  -->
+{% endblock content %}
+<!-- End Content =============================================== -->

@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+{% load add_class %}
+{% load static %}
+{% load  comments comments_xtd static %}
+
+{# Title #}
+{% block title %}{{ blog.title }}{% endblock title %}
+
+<!-- SPECIFIC CSS -->
+{% block css %}
+	<link href="{% static 'css/blog.css' %}" rel="stylesheet">
+	<link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"
+	      integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+	      integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+	<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+{% endblock css %}
+
+<!-- SubHeader =============================================== -->
+{% block SubHeader %}
+	<section class="parallax-window" id="short" data-parallax="scroll" data-image-src="img/sub_header_cart.jpg"
+	         data-natural-width="1400" data-natural-height="350">
+		<div id="subheader">
+			<div id="sub_content">
+				<h1>QuickFood Blog</h1>
+				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+			</div><!-- End sub_content -->
+		</div><!-- End subheader -->
+	</section><!-- End section -->
+
+	<div id="position">
+		<div class="container">
+			<ul>
+				<li><a href="{% url 'home' %}">Home</a></li>
+				<li><a href="{% url 'list_blog' 1 %}">List blog</a></li>
+				<li>{{ blog.title }}</li>
+			</ul>
+		</div>
+	</div><!-- Position -->
+{% endblock SubHeader %}
+<!-- End SubHeader ============================================ -->
+
+<!-- Content ================================================== -->
+{% block content %}
+	{% get_comment_count for blog as comment_count %}
+	<div class="container margin_60_35">
+		<div class="row">
+
+			<div class="col-md-9">
+				<div class="post">
+					<img src="{{ blog.picture.url }}" alt="" class="img-responsive">
+					<div class="post_info clearfix">
+						<div class="post-left">
+							<ul>
+								<li><i class="icon-calendar-empty"></i>{{ blog.created_date }}
+									<em>by {{ blog.user.username }}</em></li>
+								<li><i class="icon-inbox-alt"></i><a href="#">Category</a></li>
+								<li><i class="icon-tags"></i><a href="#">Works</a>, <a href="#">Personal</a></li>
+							</ul>
+						</div>
+						<div class="post-right"><i class="icon-comment"></i><a href="#">{{ comment_count }} </a></div>
+					</div>
+					<h2>{{ blog.title }}</h2>
+					<p>{{ blog.blog_text }}</p>
+				</div><!-- end post -->
+
+
+				<div id="comments">
+					<div>
+						<div class="py-4 text-center">
+							<a href="{% url 'list_blog' 1 %}">Back to the blog list</a>
+							&nbsp;&sdot;&nbsp;
+							{{ comment_count }} comment{{ comment_count|pluralize }}
+							ha{{ comment_count|pluralize:"s,ve" }} been posted.
+						</div>
+						{% if comment_count > 0 %}
+							<hr/>
+							<div class="comments">
+								<ol>
+									{% if request.user.is_authenticated %}
+										{% render_xtdcomment_tree for blog allow_flagging allow_feedback show_feedback %}
+									{% else %}
+										{% render_xtdcomment_tree for blog allow_flagging show_feedback %}
+									{% endif %}
+								</ol>
+							</div>
+						{% endif %}
+						<div class="card card-block mb-5">
+							<div class="card-body">
+								<h4 class="card-title text-center pb-3">Post your comment</h4>
+								{% render_comment_form for blog %}
+							</div>
+						</div>
+					</div>
+				</div><!-- End Comments -->
+
+			</div><!-- End col-md-9-->
+
+			<aside class="col-md-3" id="sidebar">
+
+				<div class="widget">
+					<div id="custom-search-input-blog">
+						<div class="input-group col-md-12">
+							<input type="text" class="form-control input-lg" placeholder="Search">
+							<span class="input-group-btn">
+                                <button class="btn btn-info btn-lg" type="button">
+	                                <i class="icon-search-1"></i>
+                                </button>
+                            </span>
+						</div>
+					</div>
+				</div><!-- End Search -->
+				<hr>
+				<div class="widget">
+					<h4>Categories</h4>
+					<ul id="cat_nav_blog">
+						<li><a href="#">News</a></li>
+						<li><a href="#">Events</a></li>
+						<li><a href="#">Special dishes</a></li>
+						<li><a href="#">New Restaurants</a></li>
+					</ul>
+				</div><!-- End widget -->
+
+				<hr>
+
+				<div class="widget">
+					<h4>Recent post</h4>
+					<ul class="recent_post">
+						{% for blog in recent %}
+							<li>
+								<i class="icon-calendar-empty"></i> {{ blog.created_date }}
+								<div>
+									<a href="{% url 'detail_blog' blog.id %}">{{ blog.blog_text|truncatechars:62 }} </a>
+								</div>
+							</li>
+						{% endfor %}
+					</ul>
+				</div><!-- End widget -->
+				<hr>
+				<div class="widget tags">
+					<h4>Tags</h4>
+					<a href="#">Lorem ipsum</a>
+					<a href="#">Dolor</a>
+					<a href="#">Long established</a>
+					<a href="#">Sit amet</a>
+					<a href="#">Latin words</a>
+					<a href="#">Excepteur sint</a>
+				</div><!-- End widget -->
+
+			</aside><!-- End aside -->
+
+		</div>
+	</div><!-- End container -->
+
+{% endblock content %}
+<!-- End Content =============================================== -->
+
+{# SPECIFIC SCRIPT #}
+{% block js %}
+	{# Django-comment-xtd #}
+
+	<script src="https://code.jquery.com/jquery-3.3.1.min.js"
+			crossorigin="anonymous"></script>
+	<script
+			src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+			integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+			crossorigin="anonymous"></script>
+	<script
+			src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+			integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+			crossorigin="anonymous"></script>
+	<script>
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip({html: true});
+        });
+	</script>
+	<script>
+        window.comments_props = {% get_commentbox_props for blog %};
+        window.comments_props_override = {
+            allow_comments: {%if blog.allow_comments%}true{%else%}false{%endif%},
+            allow_feedback: true,
+            show_feedback: true,
+            allow_flagging: true,
+            polling_interval: 2000,
+        };
+	</script>
+{% endblock js %}
+

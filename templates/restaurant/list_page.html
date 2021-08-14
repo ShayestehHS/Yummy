@@ -1,0 +1,84 @@
+{% extends 'base.html' %}
+{% load replace_url %}
+{% load static %}
+
+{% block title %}All restaurants{% endblock title %}
+
+<!-- Radio and check inputs -->
+{% block css %}
+	<link href="{% static 'css/skins/square/grey.css' %}" rel="stylesheet">
+	<link href="{% static 'css/ion.rangeSlider.css' %}" rel="stylesheet">
+	<link href="{% static 'css/ion.rangeSlider.skinFlat.css' %}" rel="stylesheet">
+	{# CSS ONlY	#}
+	<style>
+        .inactiveLink {
+            pointer-events: none;
+            cursor: default;
+        }
+	</style>
+{% endblock css %}
+
+<!-- SubHeader =============================================== -->
+{% block SubHeader %}
+	<section class="parallax-window" id="short" data-parallax="scroll" data-image-src="img/sub_header_short.jpg"
+	         data-natural-width="1400" data-natural-height="350">
+		<div id="subheader">
+			<div id="sub_content">
+				<input type="submit" value="{{ searched_key }}" name="searched_key" hidden>
+				<input type="submit" value="{{ searched_tag }}" name="searched_tag" hidden>
+				{% if searched_tag %}
+					<p style="font-size: xx-large;display: inline">Search by </p>
+					<p style="font-style: italic;font-size: x-large;display: inline">'{{ searched_tag }}' tag</p>
+					<p>
+						We found {{ allRestaurant.count }} restaurant{{ allRestaurant|pluralize }} by your selected tag
+					</p>
+				{% elif searched_key %}
+					<p style="font-size: xx-large;display: inline">Search by </p>
+					<p style="font-style: italic;font-size: x-large;display: inline">'{{ searched_key }}'</p>
+					<p>
+						We found {{ allRestaurant.count }} restaurant{{ allRestaurant|pluralize }} by your search key
+					</p>
+				{% else %}
+					<h1>{{ allRestaurant.count }} Restaurant{{ allRestaurant|pluralize }}</h1>
+				{% endif %}
+			</div><!-- End sub_content -->
+		</div><!-- End subheader -->
+	</section><!-- End section -->
+	<div id="position">
+		<div class="container">
+			<ul>
+				<li><a href="{% url 'home' %}">Home</a></li>
+				<li>List</li>
+			</ul>
+			<a href="#0" class="search-overlay-menu-btn">
+				<i class="icon-search-6"></i> Search
+			</a>
+		</div>
+	</div><!-- Position -->
+
+{% endblock SubHeader %}
+<!-- End SubHeader ============================================ -->
+
+
+<!-- Content ================================================== -->
+{% block content %}
+	<div class="container margin_60_35">
+		<div class="row">
+			{% include 'include/list pages/left_bar.html' with allRestaurant=allRestaurant taggit=taggit %}
+
+			<div class="col-md-9">
+				{% include 'include/list pages/tools.html' %}
+
+				{% include 'restaurant/../include/grid_list/list.html' with allRestaurant=allRestaurant today_weekday=today_weekday %}
+			</div><!-- End col-md-9-->
+
+		</div><!-- End row -->
+	</div><!-- End container -->
+{% endblock content %}
+<!-- End Content =============================================== -->
+
+!-- SPECIFIC SCRIPTS -->
+{% block js %}
+	<script src="{% static 'js/Custom js/left_bar.js' %}"></script>
+	<script src="{% static 'js/Custom js/direct.js' %}"></script>
+{% endblock js %}

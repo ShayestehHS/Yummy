@@ -1,0 +1,337 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{# Title #}
+{% block title %}Menu{% endblock title %}
+
+<!-- Radio and check inputs -->
+<link href="{% static 'css/skins/square/grey.css' %}" rel="stylesheet">
+
+<!-- SubHeader =============================================== -->
+{% block SubHeader %}
+	<section class="parallax-window" data-parallax="scroll" data-image-src="{% static 'img/sub_header_home.jpg' %}"
+	         data-natural-width="1400" data-natural-height="470">
+		<div id="subheader">
+			<div id="sub_content">
+				<div id="thumb">
+					<img src="{{ restaurant.logo.url }}" alt="logo">
+				</div>
+				<div class="rating">
+					<i class="icon_star voted"></i>
+					<i class="icon_star voted"></i>
+					<i class="icon_star voted"></i>
+					<i class="icon_star voted"></i>
+					<i class="icon_star"></i>
+					(
+					<small>
+						<a href="{% url 'detail_restaurant' 2 %}">
+							{% with restaurant.restaurantreview_set.count as rest_count %}
+								Read {{ rest_count }} review{{ rest_count|pluralize }}
+							{% endwith %}
+						</a>
+					</small>
+					)
+				</div>
+				<h1>{{ restaurant.name }}</h1>
+				<div>
+					<em>
+						{% for tag in restaurant.tags.all %}
+							{{ tag }}
+							{% if not forloop.last %}/{% endif %}
+						{% endfor %}
+					</em>
+				</div>
+				<div>
+					<i class="icon_pin"></i> {{ restaurant.address }}
+				</div>
+				<br>
+				<p>
+					<strong>Delivery charge:</strong>
+					${{ restaurant.delivery_charge }}
+				</p>
+			</div><!-- End sub_content -->
+		</div><!-- End subheader -->
+	</section><!-- End section -->
+
+	<div id="position">
+		<div class="container">
+			<ul>
+				<li><a href="{% url 'home' %}">Home</a></li>
+				<li>Menu: {{ restaurant.name }}</li>
+			</ul>
+			<a href="#0" class="search-overlay-menu-btn"><i class="icon-search-6"></i> Search</a>
+		</div>
+	</div><!-- Position -->
+
+{% endblock SubHeader %}
+<!-- End SubHeader ============================================ -->
+
+
+<!-- Content ================================================== -->
+{% block content %}
+	<div class="container margin_60_35">
+		<div class="row">
+
+			<div class="col-md-3">
+				<div class="box_style_1">
+					<ul id="cat_nav">
+
+						{% if starter.count > 0 %}
+							<li><a href="#starters" class="active">Starters <span>({{ starter.count }})</span></a></li>
+						{% endif %}
+
+						{% if main_course.count > 0 %}
+							<li><a href="#main_courses">Main Courses <span>({{ main_course.count }})</span></a></li>
+						{% endif %}
+
+						{% if beef.count > 0 %}
+							<li><a href="#beef">Beef <span>({{ beef.count }})</span></a></li>
+						{% endif %}
+
+						{% if dessert.count > 0 %}
+							<li><a href="#desserts">Desserts <span>({{ dessert.count }})</span></a></li>
+						{% endif %}
+
+						{% if drink.count > 0 %}
+							<li><a href="#drinks">Drinks <span>({{ drink.count }})</span></a></li>
+						{% endif %}
+
+					</ul>
+				</div><!-- End box_style_1 -->
+
+				<div class="box_style_2 hidden-xs" id="help">
+					<i class="icon_lifesaver"></i>
+					<h4>Need <span>Help?</span></h4>
+					<a href="tel://{{ restaurant.phone_number }}" class="phone">{{ restaurant.phone_number }}</a>
+					<small>Only answered in working time</small>
+				</div>
+			</div><!-- End col-md-3 -->
+
+			<div class="col-md-6">
+
+				<div class="box_style_2" id="main_menu">
+					<h2 class="inner">Menu</h2>
+					{% if starter.count > 0 %}
+						<h3 class="nomargin_top" id="starters">Starters</h3>
+						<p>
+							Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+							incididunt ut labore et dolore magna aliqua.
+						</p>
+						<table class="table table-striped cart-list">
+							<thead>
+							<tr>
+								<th>Item</th>
+								<th>Price</th>
+								<th>Order</th>
+							</tr>
+							</thead>
+							<tbody>
+							{% for starter in starter %}
+								<tr id="{{ starter.name }}_{{ starter.id }}">
+									<td>
+										<figure class="thumb_menu_list">
+											<img src="{{ starter.picture.url }}" alt="thumb">
+										</figure>
+										<h5>{{ forloop.counter }}. {{ starter.name }}</h5>
+										<p>{{ starter.description }}</p>
+									</td>
+									<td>
+										<strong class="price">$ {{ starter.price }}</strong>
+									</td>
+									<td class="options">
+										<a href="#0"><i class="icon_plus_alt2 add_to_cart"></i></a>
+									</td>
+								</tr>
+							{% endfor %}
+							</tbody>
+						</table>
+						<hr>
+					{% endif %}
+					{% if main_course.count > 0 %}
+						<h3 id="main_courses">Main courses</h3>
+						<p>
+							Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+							incididunt ut labore et dolore magna aliqua.
+						</p>
+						<table class="table table-striped cart-list ">
+							<thead>
+							<tr>
+								<th>Item</th>
+								<th>Price</th>
+								<th>Order</th>
+							</tr>
+							</thead>
+							<tbody>
+							{% for main_course in main_course %}
+								<tr id="{{ main_course.name }}_{{ main_course.id }}">
+									<td>
+										<figure class="thumb_menu_list">
+											<img src="{{ main_course.picture.url }}" alt="thumb">
+										</figure>
+										<h5>{{ forloop.counter }}. {{ main_course.name }}</h5>
+										<p> {{ main_course.description }} </p>
+									</td>
+									<td>
+										<strong class="price">$ {{ main_course.price }}</strong>
+									</td>
+									<td class="options">
+										<a href="#0"><i class="icon_plus_alt2 add_to_cart"></i></a>
+									</td>
+								</tr>
+							{% endfor %}
+							</tbody>
+						</table>
+						<hr>
+					{% endif %}
+					{% if beef.count > 0 %}
+						<h3 id="beef">Beef</h3>
+						<p>
+							Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+							incididunt ut labore et dolore magna aliqua.
+						</p>
+						<table class="table table-striped cart-list ">
+							<thead>
+							<tr>
+								<th>Item</th>
+								<th>Price</th>
+								<th>Order</th>
+							</tr>
+							</thead>
+							<tbody>
+							{% for beef in beef %}
+								<tr id="{{ beef.name }}_{{ beef.id }}">
+									<td>
+										<figure class="thumb_menu_list">
+											<img src="{{ beef.picture.url }}" alt="thumb">
+										</figure>
+										<h5>{{ forloop.counter }}. {{ beef.name }}</h5>
+										<p>
+											{{ beef.description }}
+										</p>
+									</td>
+									<td>
+										<strong class="price">$ {{ beef.price }}</strong>
+									</td>
+									<td class="options">
+										<a href="#0"><i class="icon_plus_alt2 add_to_cart"></i></a>
+									</td>
+								</tr>
+							{% endfor %}
+							</tbody>
+						</table>
+						<hr>
+					{% endif %}
+					{% if dessert.count > 0 %}
+						<h3 id="desserts">Desserts</h3>
+						<p>
+							Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+							incididunt ut labore et dolore magna aliqua.
+						</p>
+						<table class="table table-striped cart-list ">
+							<thead>
+							<tr>
+								<th>Item</th>
+								<th>Price</th>
+								<th>Order</th>
+							</tr>
+							</thead>
+							<tbody>
+							{% for dessert in dessert %}
+								<tr id="{{ dessert.name }}_{{ dessert.id }}">
+									<td>
+										<figure class="thumb_menu_list">
+											<img src="{{ dessert.picture.url }}" alt="thumb">
+										</figure>
+										<h5>{{ forloop.counter }}. {{ dessert.name }}</h5>
+										<p>{{ dessert.description }}</p>
+									</td>
+									<td>
+										<strong class="price">$ {{ dessert.price }}</strong>
+									</td>
+									<td class="options">
+										<a href="#0"><i class="icon_plus_alt2 add_to_cart"></i></a>
+									</td>
+								</tr>
+							{% endfor %}
+							</tbody>
+						</table>
+						<hr>
+					{% endif %}
+					{% if drink.count > 0 %}
+						<h3 id="drinks">Drinks</h3>
+						<p>
+							Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+							incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+							quis nostrud exercitation ullamco laboris nisi
+						</p>
+						<table class="table table-striped cart-list ">
+							<thead>
+							<tr>
+								<th>Item</th>
+								<th>Price</th>
+								<th>Order</th>
+							</tr>
+							</thead>
+							<tbody>
+							{% for drink in drink %}
+								<tr id="{{ drink.name }}_{{ drink.id }}">
+									<td>
+										<figure class="thumb_menu_list">
+											<img src="{{ drink.picture.url }}" alt="thumb">
+										</figure>
+										<h5>{{ forloop.counter }}. {{ drink.name }}</h5>
+										<p>{{ drink.description }}</p>
+									</td>
+									<td>
+										<strong class="price">$ {{ drink.price }}</strong>
+									</td>
+									<td class="options">
+										<a href="#0">
+											<i class="icon_plus_alt2 add_to_cart"></i>
+										</a>
+									</td>
+								</tr>
+							{% endfor %}
+							</tbody>
+						</table>
+					{% endif %}
+				</div><!-- End box_style_1 -->
+			</div><!-- End col-md-6 -->
+			<div class="col-md-3" id="sidebar">
+				<div class="theiaStickySidebar">
+					<div id="cart_box">
+
+						{% include 'include/../ordering/order_list.html' with restaurant=restaurant order_list=order_list %}
+
+						<a class="btn_full" id="order_now" href="{% url 'step_1' %}">Order now</a>
+					</div><!-- End cart_box -->
+				</div><!-- End theiaStickySidebar -->
+			</div><!-- End col-md-3 -->
+
+		</div><!-- End row -->
+	</div><!-- End container -->
+{% endblock content %}
+<!-- End Content =============================================== -->
+
+<!-- SPECIFIC SCRIPTS -->
+{% block js %}
+	<script src="{% static 'js/cat_nav_mobile.js' %}"></script>
+	<script src="{% static 'js/theia-sticky-sidebar.js' %}"></script>
+	<script src="{% static 'js/Custom js/order_list.js' %}"></script>
+	<script>
+        $('#cat_nav').mobileMenu();
+        jQuery('#sidebar').theiaStickySidebar({
+            additionalMarginTop: 80
+        });
+        $('#cat_nav a[href^="#"]').on('click', function (e) {
+            e.preventDefault();
+            var target = this.hash;
+            var $target = $(target);
+            $('html, body').stop().animate({
+                'scrollTop': $target.offset().top - 70
+            }, 900, 'swing', function () {
+                window.location.hash = target;
+            });
+        });
+	</script>
+{% endblock js %}

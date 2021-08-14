@@ -1,0 +1,135 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{# Title #}
+{% block title %}Contact to us{% endblock title %}
+
+<!-- SubHeader =============================================== -->
+{% block SubHeader %}
+	<section class="parallax-window" id="short" data-parallax="scroll"
+	         data-image-src="{% static 'img/sub_header_short.jpg' %}"
+	         data-natural-width="1400" data-natural-height="350">
+		<div id="subheader">
+			<div id="sub_content">
+				<h1>Contacts</h1>
+				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+			</div><!-- End sub_content -->
+		</div><!-- End subheader -->
+	</section><!-- End section -->
+
+	<div id="position">
+		<div class="container">
+			<ul>
+				<li><a href="{% url 'home' %}">Home</a></li>
+				<li>Contacts</li>
+			</ul>
+		</div>
+	</div><!-- Position -->
+
+{% endblock SubHeader %}
+<!-- End SubHeader ============================================ -->
+
+<!-- Content ================================================== -->
+{% block content %}
+	<div class="container margin_60_35">
+		<div class="row" id="contacts">
+			<div class="col-md-offset-3 col-md-6 col-sm-6 col-sm-offset-3">
+				<div class="box_style_2">
+					<h2 class="inner">Restaurant Support</h2>
+					<p class="add_bottom_30">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod
+						tempor incididunt ut labore
+						et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi
+						ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit
+						esse
+						cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in
+						culpai
+						ui officia deserunt mollit anim id est laborum.
+					</p>
+					<div class="row">
+						<div class="col-md-10 col-sm-10">
+							<a href="#/" class="phone">
+								<i class="icon-phone-circled"></i> +45 423 445 99
+							</a>
+						</div>
+						<div class="col-md-2 col-sm-2">
+							<a href="tel://004542344599" class="phone">
+								<input type="button" class="btn btn-info btn-sm pull-right"
+								       value="Call">
+							</a>
+
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-md-10 col-sm-10">
+							<a href="#/">
+								<i class="icon-mail-3"></i>support@quickfood.com
+							</a>
+						</div>
+						<div class="col-md-2 col-sm-2">
+							<input type="button" class="btn btn-primary btn-sm pull-right" data-toggle="modal"
+							       data-target="#exampleModal" value="Send email">
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</div><!-- End row -->
+	</div><!-- End container -->
+
+	<!-- Modal -->
+	<div class="modal fade" id="exampleModal" tabindex="-1"
+	     role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<p class="modal-title" id="exampleModalLabel" style="display: inline">Modal title</p>
+					<a href="#/" class="close" data-dismiss="modal" aria-label="Close">
+						<i class="icon_close_alt2"></i>
+					</a>
+				</div>
+				<div class="modal-body">
+
+					<form id="contactsForm">
+						{% csrf_token %}
+						<input type="hidden" id="UrlAJAX_sendEmail" value="{% url 'contacts' %}">
+						<div class="container-fluid ">
+							<div class="form-group">
+								<div class="row">
+									<div class="col-md-6 col-lg-6 col-sm-6 col-xs-6">
+										<input type="text" class="form-control"
+										       placeholder="Name" name="name" required>
+									</div>
+									<div class="col-md-6 col-lg-6 col-sm-6 col-xs-6">
+										<input type="text" class="form-control"
+										       placeholder="Family" name="family" required>
+									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="row ">
+									<input type="email" class="form-control col-md-4"
+									       placeholder="Enter your email" name="email" required>
+								</div>
+							</div>
+							<div class="form-group">
+								<div class="row ">
+									<textarea rows="5" class="form-control" placeholder="Text"
+									          style="resize: vertical" name="text" required></textarea>
+								</div>
+							</div>
+						</div>
+
+						<input type="submit" class="btn btn-primary" data-dismiss="modal" value="Submit">
+						<input type="button" class="btn btn-danger pull-right" data-dismiss="modal" value="Close">
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+
+{% endblock content %}
+<!-- End Content =============================================== -->
+
+{% block js %}
+	<script src="{% static 'js/Custom js/contacts.js' %}"></script>
+{% endblock %}

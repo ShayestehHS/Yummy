@@ -1,0 +1,91 @@
+<div id="all_items">
+	{% for item in items %}
+		<div class="item wrapper_indent" id="item_{{ item.id }}">
+
+			<div class="menu-item-section clearfix">
+				<h4 style="color: black"
+				    data-number="{{ forloop.counter }}">{{ forloop.counter }})
+					<span class="item_name">{{ item.name|capfirst }}</span>
+				</h4>
+				<div>
+					<input class="item_id" type="hidden" value="{{ item.id }}">
+
+					<a href="#division_{{ forloop.counter }}" data-toggle="collapse">
+						<i data-toggle="tooltip" title="Maximize"
+						   class="minimize arrow_carrot-2dwnn_alt"></i>
+					</a>
+					<a href="#/" data-toggle="modal" data-target="#DeleteConf_Modal">
+						<i data-toggle="tooltip" title="Delete" class="delete icon_close_alt"></i>
+					</a>
+					<a href="#/">
+						<i data-toggle="tooltip" title="Save" class="save icon_check_alt"></i>
+					</a>
+				</div>
+			</div>
+			<div id="division_{{ forloop.counter }}" class="strip_menu_items collapse">
+				<div class="row">
+					<div class="col-sm-3">
+						<div class="menu-item-pic">
+							<div>
+								<img src="{{ item.picture.url }}" alt=""
+								     style="width: 90%;height: 90%">
+							</div>
+						</div>
+					</div>
+					<div class="col-sm-9">
+						<div class="row">
+							<div class="col-md-4">
+								<div class="form-group">
+									<label>Name</label>
+									<input type="text"
+									       class="MenuForm_name form-control" value="{{ item.name }}">
+								</div>
+							</div>
+							<div class="col-md-4">
+								<label>Category</label>
+								<select name="Category_itemvalue="
+								        class="MenuForm_category form-control">
+									<option value="Starter"
+									        {% if item.category == 'Starter' %}selected{% endif %}
+									>Starter
+									</option>
+									<option value="Main course"
+									        {% if item.category == 'Main course' %}selected{% endif %}
+									>Main course
+									</option>
+									<option value="Beef"
+									        {% if item.category == 'Beef' %}selected{% endif %}
+									>Beef
+									</option>
+									<option value="Dessert"
+									        {% if item.category == 'Dessert' %}selected{% endif %}
+									>Dessert
+									</option>
+									<option value="Drink"
+									        {% if item.category == 'Drink' %}selected{% endif %}
+									>Drink
+									</option>
+								</select>
+							</div>
+							<div class="col-md-4">
+								<div class="form-group">
+									<label>Price</label>
+									<input type="number" class="MenuForm_price form-control"
+									       value="{{ item.price }}">
+								</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<label>Short description</label>
+							<textarea style="resize: vertical;" type="text"
+							          name="menu_item_description"
+							          class="MenuForm_description form-control" autocomplete="off"
+							          rows="5">{{ item.description }}</textarea>
+						</div>
+					</div>
+				</div><!-- End row -->
+			</div><!-- End strip_menu_items -->
+
+		</div><!-- End wrapper_indent -->
+	{% endfor %}
+</div>

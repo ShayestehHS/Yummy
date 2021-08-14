@@ -1,0 +1,46 @@
+{% load replace_url %}
+{#	Paginator#}
+{% with allRestaurant.number as curPage %}
+	{% with request.get_full_path as path %}
+		{% if allRestaurant.has_other_pages %}
+			<nav aria-label="Page navigation example">
+				<ul class="pagination">
+
+					{% if allRestaurant.has_previous %}
+						<li class="page-item">
+							<a class="page-link"
+							   href="{% url_replace path curPage allRestaurant.previous_page_number %}">
+								&laquo;</a>
+						</li>
+					{% else %}
+						<li class="disabled page-item">
+							<span>&laquo;</span>
+						</li>
+					{% endif %}
+
+					{% for i in allRestaurant.paginator.page_range %}
+						{% if allRestaurant.number == i %}
+							<li class="active page-item">
+								<span>{{ i }} <span class="page-link sr-only">(current)</span></span>
+							</li>
+						{% else %}
+							<li class="page-item">
+								<a class="page-link"
+								   href="{% url_replace path curPage i %}">{{ i }}</a>
+							</li>
+						{% endif %}
+					{% endfor %}
+
+					{% if allRestaurant.has_next %}
+						<li class="page-item">
+							<a class="page-link"
+							   href="{% url_replace path curPage allRestaurant.next_page_number %}">&raquo;</a>
+						</li>
+					{% else %}
+						<li class="disabled page-item"><span>&raquo;</span></li>
+					{% endif %}
+				</ul>
+			</nav>
+		{% endif %}
+	{% endwith %}
+{% endwith %}

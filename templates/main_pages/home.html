@@ -1,0 +1,275 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load index odd %}
+{% load static %}
+
+{% block title %}Home{% endblock title %}
+
+<!-- SubHeader =============================================== -->
+{% block SubHeader %}
+	<section class="parallax-window" id="home" data-parallax="scroll"
+	         data-image-src="{% static 'img/sub_header_home.jpg' %}"
+	         data-natural-width="1400" data-natural-height="550">
+		<div id="subheader">
+			<div id="sub_content">
+				<h1>Order Takeaway or Delivery Food</h1>
+				<p>Yummy: Where the food is the star.</p>
+				<form action="{% url 'search' 1 %}" method="GET" name="searchForm" class="searchForm">
+					{% csrf_token %}
+					<div id="custom-search-input">
+						<div class="input-group ">
+							<input type="text" class="search-query key" name="key"
+							       placeholder="Restaurant name" required>
+							<span class="input-group-btn">
+                                <input type="submit" class="btn_search" value="submit">
+                            </span>
+						</div>
+					</div>
+				</form>
+			</div><!-- End sub_content -->
+		</div><!-- End subheader -->
+		<div id="count" class="hidden-xs">
+			<ul>
+				<li><span class="number">{{ restaurant_count }}</span> Restaurant</li>
+				<li><span class="number">{{ served_count }}</span> People Served</li>
+				<li><span class="number">{{ user_count }}</span> Registered Users</li>
+			</ul>
+		</div>
+	</section><!-- End section -->
+{% endblock SubHeader %}
+<!-- End SubHeader ============================================ -->
+
+<!-- Content ================================================== -->
+{% block content %}
+	<div class="container margin_60">
+
+		<div class="main_title">
+			<h2 class="nomargin_top" style="padding-top:0">How it works</h2>
+			<p>
+				When they become educated citizens in the financing deterred.
+			</p>
+		</div>
+		<div class="row">
+			<div class="col-md-3">
+				<div class="box_home" id="one">
+					<span>1</span>
+					<h3>Search by address</h3>
+					<p>
+						Find all restaurants available in your zone.
+					</p>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<div class="box_home" id="two">
+					<span>2</span>
+					<h3>Choose a restaurant</h3>
+					<p>
+						We have more than 1000s of menus online.
+					</p>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<div class="box_home" id="three">
+					<span>3</span>
+					<h3>Pay by card</h3>
+					<p>
+						It's quick, easy and totally secure.
+					</p>
+				</div>
+			</div>
+			<div class="col-md-3">
+				<div class="box_home" id="four">
+					<span>4</span>
+					<h3>Delivery or takeaway</h3>
+					<p>
+						You are lazy? Are you backing home?
+					</p>
+				</div>
+			</div>
+		</div><!-- End row -->
+	</div>
+	<!-- End container -->
+
+	<div class="white_bg">
+		<div class="container margin_60">
+
+			<div class="main_title">
+				<h2 class="nomargin_top">Choose from Most Popular</h2>
+				<p>
+					When they become educated citizens in the financing deterred.
+				</p>
+			</div>
+
+			<!-- Left column -->
+			<div class="row">
+				<div class="col-md-6">
+					{% for rest in PopularRestaurant %}
+						{% if forloop.counter0|odd:2 == 1 %}
+							<a href="{% url 'menu' rest.id %}" class="strip_list">
+								<div class="ribbon_1">Popular</div>
+								<div class="desc">
+									<div class="thumb_strip">
+										<img src="{{ rest.logo.url }}" alt="">
+									</div>
+									<div class="rating">
+										<i class="icon_star voted"></i><i class="icon_star voted"></i><i
+											class="icon_star voted"></i><i class="icon_star voted"></i><i
+											class="icon_star"></i>
+									</div>
+									<h3>{{ rest.name }}</h3>
+									<br>
+									<div class="location">
+										{{ rest.address }}.
+										{% with OpeningTime=today_weekday|index:forloop.counter0 %}
+											{% if OpeningTime != None %}
+												<span class="opening">{{ OpeningTime }}</span>
+											{% else %}
+												<span class="opening">Closed</span>
+											{% endif %}
+										{% endwith %}
+									</div>
+									<ul>
+										{% if rest.is_take_away %}
+											<li>Take away<i class="icon_check_alt2 ok"></i></li>
+										{% else %}
+											<li>Take away<i class="icon_check_alt2 no"></i></li>
+										{% endif %}
+
+										{% if rest.is_delivery %}
+											<li>Delivery<i class="icon_check_alt2 ok"></i></li>
+										{% else %}
+											<li>Delivery<i class="icon_check_alt2 no"></i></li>
+										{% endif %}
+
+									</ul>
+								</div><!-- End desc-->
+							</a><!-- End strip_list-->
+						{% endif %}
+					{% endfor %}
+				</div><!-- End column-->
+
+				<!-- Right column -->
+				<div class="col-md-6">
+					{% for R_Restaurant in PopularRestaurant %}
+						{% if forloop.counter0|odd:2 == 0 %}
+							<a href="{% url 'menu' R_Restaurant.id %}" class="strip_list">
+								<div class="ribbon_1">Popular</div>
+								<div class="desc">
+									<div class="thumb_strip">
+										<img src="{{ R_Restaurant.logo.url }}" alt="">
+									</div>
+									<div class="rating">
+										<i class="icon_star voted"></i><i class="icon_star voted"></i><i
+											class="icon_star voted"></i><i class="icon_star voted"></i><i
+											class="icon_star"></i>
+									</div>
+									<h3>{{ R_Restaurant.name }}</h3>
+									<br>
+									<div class="location">
+										{{ R_Restaurant.address }}.
+										{% with OpeningTime=today_weekday|index:forloop.counter0 %}
+											{% if OpeningTime != None %}
+												<span class="opening">{{ OpeningTime }}</span>
+											{% else %}
+												<span class="opening">Closed</span>
+											{% endif %}
+										{% endwith %}
+
+									</div>
+									<ul>
+										{% if R_Restaurant.is_take_away %}
+											<li>Take away<i class="icon_check_alt2 ok"></i></li>
+										{% else %}
+											<li>Take away<i class="icon_check_alt2 no"></i></li>
+										{% endif %}
+
+										{% if R_Restaurant.is_delivery %}
+											<li>Delivery<i class="icon_check_alt2 ok"></i></li>
+										{% else %}
+											<li>Delivery<i class="icon_check_alt2 no"></i></li>
+										{% endif %}
+									</ul>
+								</div><!-- End desc-->
+							</a><!-- End strip_list-->
+						{% endif %}
+					{% endfor %}
+				</div>
+			</div><!-- End column -->
+
+		</div><!-- End container -->
+	</div>
+	<!-- End white_bg -->
+
+	<div class="high_light">
+		<div class="container">
+			<h3>Choose from over {{ restaurant.count|intcomma }} Restaurants</h3>
+			<p>And, you can see all of this restaurants as easy as possible.</p>
+			<a href="{% url 'list' 1 %}">View all Restaurants</a>
+		</div><!-- End container -->
+	</div>
+	<!-- End hight_light -->
+
+	<section class="parallax-window" data-parallax="scroll" data-image-src="{% static 'img/bg_office.jpg' %}"
+	         data-natural-width="1200" data-natural-height="600">
+		<div class="parallax-content">
+			<div class="sub_content">
+				<i class="icon_mug"></i>
+				<h3>We also deliver to your office</h3>
+				<p>
+					Now you just have to click on what you want, then drink what you want.
+				</p>
+			</div><!-- End sub_content -->
+		</div><!-- End subheader -->
+	</section><!-- End section -->
+
+	<div class="container margin_60">
+		<div class="main_title margin_mobile">
+			<h2 class="nomargin_top">Work with Us</h2>
+			<p>
+				We need your help.
+			</p>
+		</div>
+		<div class="row">
+			<div class="col-md-4 col-md-offset-2">
+				<a class="box_work"{% if not request.user.isOwner %}
+				   href="{% url 'submit_restaurant' %}"
+				{% else %}
+				   href="javascript:void(0)"
+				   onclick="ShowMessageAjax('error','You can not submit new restaurant again')"
+				{% endif %}>
+					<img src="{% static 'img/submit_restaurant.jpg' %}" width="848" height="480" alt=""
+					     class="img-responsive">
+					<h3>Submit your Restaurant<span>Start to earn customers</span></h3>
+					<p>Lorem ipsum dolor sit amet, ut virtute fabellas vix, no pri falli eloquentiam adversarium. Ea
+						legere
+						labore eam. Et eum sumo ocurreret, eos ei saepe oratio omittantur, legere eligendi partiendo pro
+						te.</p>
+					<div class="btn_1">Read more</div>
+				</a>
+			</div>
+			<div class="col-md-4">
+				<a class="box_work"
+						{% if not request.user.isDriver %}
+                   href="{% url 'submit_driver' %}"
+						{% else %}
+                   href="javascript:void(0)"
+                   onclick="ShowMessageAjax('error','You are submitted before')"
+						{% endif %}>
+					<img src="{% static 'img/delivery.jpg' %}" width="848" height="480" alt="" class="img-responsive">
+					<h3>We are looking for a Driver<span>Start to earn money</span></h3>
+					<p>Lorem ipsum dolor sit amet, ut virtute fabellas vix, no pri falli eloquentiam adversarium. Ea
+						legere
+						labore eam. Et eum sumo ocurreret, eos ei saepe oratio omittantur, legere eligendi partiendo pro
+						te.</p>
+					<div class="btn_1">Read more</div>
+				</a>
+			</div>
+		</div><!-- End row -->
+	</div>
+{% endblock content %}
+<!-- End Content ================================================== -->
+
+{% block js %}
+
+{% endblock js %}
+

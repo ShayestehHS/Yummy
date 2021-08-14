@@ -1,0 +1,47 @@
+{% load static %}
+<!-- Start message =============================================== -->
+{% if messages or request %}
+	<link rel="stylesheet" href="{% static 'message/message.css' %}">
+
+	<button class="alert" hidden></button>
+	<button class="success" hidden></button>
+
+	<script src="{% static 'message/foundation.min.js' %}"></script>
+	<script src="{% static 'message/message.js' %}"></script>
+	<script>
+        {#	 Messages from AJAX #}
+        function ShowMessageAjax(condition, msg, showTime = 1700) {
+            $('button.success').delay(2000).click(setTimeout(function () {
+                alertify.set({delay: showTime});
+                // Set condition
+                if (condition == "success") {
+                    alertify.success(msg);
+                } else if (condition == "error") {
+                    alertify.error(msg);
+                }
+            }, 500));
+        }
+
+        {#	 Messages from django.contrib.messages #}
+        {% for message in messages %}
+            {% if  message.level == DEFAULT_MESSAGE_LEVELS.SUCCESS %}
+                $('button.success').click(setTimeout(function () {
+                    alertify.set({delay: 1700});
+                    alertify.success("{{ message }}");
+                }, 2000));
+            {% elif message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}
+                $('button.alert').click(setTimeout(function () {
+                    alertify.set({delay: 1700});
+                    alertify.error("{{ message }}");
+                }, 2000));
+            {% endif %}
+        {% endfor %}
+
+        $(document).ready(function () {
+            $('button.alert').trigger('click');
+            $('button.success').trigger('click');
+        });
+	</script>
+
+{% endif %}
+<!-- End message =============================================== -->

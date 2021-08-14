@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{# title #}
+{% block title %}Blog{% endblock title %}
+
+<!-- SubHeader =============================================== -->
+{% block SubHeader %}
+	<section class="parallax-window" id="short" data-parallax="scroll"
+	         data-image-src="{% static 'img/sub_header_cart.jpg' %}"
+	         data-natural-width="1400" data-natural-height="350">
+		<div id="subheader">
+			<div id="sub_content">
+				<h1>QuickFood Blog</h1>
+				<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
+				<p></p>
+			</div><!-- End sub_content -->
+		</div><!-- End subheader -->
+	</section><!-- End section -->
+
+	<div id="position">
+		<div class="container">
+			<ul>
+				<li><a href="{% url 'home' %}">Home</a></li>
+				<li>List blog</li>
+				{% if searched_key %}
+					<li>Search: <span>{{ searched_key }}</span></li>
+				{% endif %}
+			</ul>
+		</div>
+	</div><!-- Position -->
+{% endblock SubHeader %}
+<!-- End SubHeader ============================================ -->
+
+
+<!-- Content ================================================== -->
+{% block content %}
+	<div class="container margin_60_35">
+		<div class="row">
+
+			<div class="col-md-9">
+				<div id="Blogs">
+					{% for blog in blogs %}
+						<div class="post">
+							<a href="{% url 'detail_blog' blog.id %}">
+								<img src="{{ blog.picture.url }}" class="img-responsive">
+							</a>
+							<div class="post_info clearfix">
+								<div class="post-left">
+									<ul>
+										<li><i class="icon-calendar-empty"></i>{{ blog.created_date }}
+											<em>by {{ blog.author.username }}</em></li>
+										<li>
+											<i class="icon-tags"></i>
+											{% for tag in blog.tags.all %}
+												<a href="{% url 'blog_tagSearch' tag.slug 1 %}">
+													{{ tag }}</a>{% if not forloop.last %},{% endif %}
+											{% endfor %}
+										</li>
+									</ul>
+								</div>
+								<div class="post-right">
+									<i class="icon-comment"></i>
+									<b>{{ blog.comment_set.all|length }} </b>
+								</div>
+							</div>
+							<h2>{{ blog.title }}</h2>
+							<p>{{ blog.blog_text|truncatechars:100 }}</p>
+							<a href="{% url 'detail_blog' blog.id %}" class="btn_1">Read more ...</a>
+						</div><!-- end post -->
+					{% empty %}
+						<h3>Empty</h3>
+					{% endfor %}
+				</div>
+
+				<!-- Paginator -->
+				{% if blogs.has_other_pages %}
+					<div class="text-center">
+						<ul class="pager">
+							{% if blogs.has_previous %}
+								<li class="previous"><a href="{% url 'list_blog' blogs.previous_page_number %}">
+									<span aria-hidden="true">&larr;</span> Older</a>
+								</li>
+							{% endif %}
+							{% if  blogs.has_next %}
+								<li class="next">
+									<a href="{% url 'list_blog' blogs.next_page_number %}">
+										Newer <span aria-hidden="true">&rarr;</span></a>
+								</li>
+							{% endif %}
+						</ul>
+					</div>
+				{% endif %}<!-- End Paginator -->
+
+			</div><!-- End col-md-9-->
+
+			<aside class="col-md-3" id="sidebar">
+
+				<div class="widget">
+					<div id="custom-search-input-blog">
+						<form action="{% url 'blog_search' %}" method="POST">
+							{% csrf_token %}
+							<div class="input-group col-md-12">
+								<input type="text" class="form-control input-lg"
+								       placeholder="Search" name="searched_key">
+								<span class="input-group-btn">
+	                                <input class="btn btn-info btn-lg" type="submit" value="&#10149;">
+                                </span>
+							</div>
+						</form>
+					</div>
+				</div><!-- End Search -->
+
+				<hr>
+
+				<div class="widget">
+					<h4>Recent post</h4>
+					<ul class="recent_post">
+						{% for blog in recent %}
+							<li>
+								<i class="icon-calendar-empty"></i> {{ blog.created_date }}
+								<div>
+									<a href="{% url 'detail_blog' blog.id %}">{{ blog.blog_text|truncatechars:62 }} </a>
+								</div>
+							</li>
+						{% endfor %}
+					</ul>
+				</div><!-- End widget -->
+				<hr>
+				<div class="widget tags">
+					<h4>Tags</h4>
+					{% for tag in tags %}
+						<a href="{% url 'blog_tagSearch' tag.slug 1 %}">{{ tag }}</a>
+					{% endfor %}
+				</div><!-- End widget -->
+
+			</aside><!-- End aside -->
+
+		</div>
+	</div><!-- End container -->
+{% endblock content %}
+<!-- End Content =============================================== -->
+
+<!-- SPECIFIC CSS -->
+{% block js %}
+	<link href="{% static 'css/blog.css' %}" rel="stylesheet">
+{% endblock js %}

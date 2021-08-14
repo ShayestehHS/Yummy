@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Configure code</title>
+</head>
+<body>
+<div class="container" style="text-align: center;">
+	<form id="SubmitForm" action="{% url 'ConfirmEmail' UserCode %}" method="POST">
+		{% csrf_token %}
+		<h1>Your remained ticket is {{ userTry }}</h1>
+		<input type="hidden" value="{{ UserCode }}" name="UserCode">
+		<input type="number" name="Email_Code" required>
+		<input type="submit" value="Submit">
+	</form>
+</div>
+
+{% include 'include/message.html' %}
+</body>
+</html>

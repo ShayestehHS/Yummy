@@ -1,0 +1,145 @@
+{% extends 'base.html' %}
+{% load add_class %}
+{% load static %}
+
+{% block title %}Admin section{% endblock title %}
+
+{% block css %}
+	<!-- SPECIFIC CSS -->
+	<link href="{% static 'css/skins/square/grey.css' %}" rel="stylesheet">
+	<link href="{% static 'css/admin.css' %}" rel="stylesheet">
+	<link href="{% static 'css/bootstrap3-wysihtml5.min.css' %}" rel="stylesheet">
+	<link href="{% static 'css/dropzone.css' %}" rel="stylesheet">
+{% endblock css %}
+
+<!-- SubHeader =============================================== -->
+{% block SubHeader %}
+	<section class="parallax-window" id="short" data-parallax="scroll"
+	         data-image-src="{% static 'img/sub_header_cart.jpg' %}"
+	         data-natural-width="1400" data-natural-height="350">
+		<div id="subheader">
+			<div id="sub_content">
+				<h1>Admin section</h1>
+				<p>Welcome to admin section of ' {{ restaurant.name }} '</p>
+				<p></p>
+			</div><!-- End sub_content -->
+		</div><!-- End subheader -->
+	</section><!-- End section -->
+{% endblock SubHeader %}
+<!-- End SubHeader ============================================ -->
+
+<!-- Content ================================================== -->
+{% block content %}
+	<div class="container margin_60">
+		<div id="tabs" class="tabs">
+			<nav>
+				<ul>
+					<li><a href="#/" class="icon-menut-items"><span>Menu</span></a></li>
+				</ul>
+			</nav>
+			<div class="content">
+
+				<section>
+					<div class="indent_title_in">
+						<i class="icon_document_alt"></i>
+						<h3>Edit menu list</h3>
+						<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor
+							incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
+							quis nostrud exercitation ullamco laboris nisi.
+						</p>
+					</div>
+
+					<input type="hidden" id="UrlAJAX_addItem" value="{% url 'addItem_form' %}">
+					<input type="hidden" id="UrlAJAX_deleteItem" value="{% url 'deleteItem_form' %}">
+					<input type="hidden" id="UrlAJAX_updateItem" value="{% url 'updateItem_form' %}">
+
+					{% include 'include/../restaurant/menu_items.html' with items=items %}
+
+					{# MenuForm #}
+					<div class="wrapper_indent">
+						<div class="menu-item-section clearfix">
+							<h4 style="color: black">New item</h4>
+							<div>
+								<a href="#NewItem_form" data-toggle="collapse">
+									<i data-toggle="tooltip" title="Maximize"
+									   class="minimize arrow_carrot-2dwnn_alt">
+									</i>
+								</a>
+							</div>
+						</div>
+						<form action="{% url 'addItem_form' %}" method="POST"
+						      id="MenuForm" enctype="multipart/form-data">
+							{{ form.errors }}
+							{% csrf_token %}
+							<div id="NewItem_form" class="strip_menu_items collapse">
+								<div class="row">
+									<div class="col-sm-3">
+										<label>Choose picture</label>
+										{{ form.picture }}
+									</div>
+									<div class="col-sm-9">
+										<div class="row">
+											<div class="col-md-4">
+												<div class="form-group">
+													<label>Name</label>
+													{{ form.name }}
+												</div>
+											</div>
+											<div class="col-md-4">
+												<label>Category</label>
+												{{ form.category }}
+											</div>
+											<div class="col-md-4">
+												<div class="form-group">
+													<label>Price</label>
+													{{ form.price }}
+												</div>
+											</div>
+										</div>
+										<div class="form-group">
+											<label>Short description</label>
+											{{ form.description }}
+										</div>
+									</div>
+
+								</div><!-- End row -->
+								<input type="submit" class="flex-column btn btn-primary" value="Submit"/>
+							</div>
+						</form><!-- End MenuForm -->
+
+					</div>
+				</section><!-- End section 1 -->
+			</div><!-- End content -->
+		</div>
+	</div><!-- End container  -->
+	<!-- Modal -->
+	<div class="modal fade" id="DeleteConf_Modal" tabindex="-1"
+	     role="dialog" data-url_ajax="{% url 'deleteItem_form' %}"
+	     aria-hidden="true" data-item-id="">
+		<div class="modal-dialog modal-sm">
+			<div class="modal-content">
+				<div class="modal-header">
+					<a href="#/" class="close" data-dismiss="modal"><i class="icon_close_alt2"></i></a>
+					<h4 class="modal-title" id="myModalLabel">Delete <span id="modal_item_name" class="text-primary">Coca</span>
+					</h4>
+				</div>
+				<div class="modal-body">
+					<h3>Are you sure you want to delete this item?</h3>
+				</div>
+				<div class="modal-footer">
+					<a href="#/" class="btn btn-primary pull-left" data-dismiss="modal">Close</a>
+					<a href="#/" class="btn btn-danger pull-right" data-dismiss="modal" id="modal_delete_btn">Delete</a>
+				</div>
+			</div>
+		</div>
+	</div>
+{% endblock content %}
+<!-- End Content =============================================== -->
+
+<!-- Specific scripts -->
+{% block js %}
+	<script src="{% static 'js/tabs.js' %}"></script>
+	<script src="{% static 'js/bootstrap3-wysihtml5.min.js' %}"></script>
+	<script src="{% static 'js/dropzone.min.js' %}"></script>
+	<script src="{% static 'js/Custom js/admin_section.js' %}"></script>
+{% endblock js %}s
