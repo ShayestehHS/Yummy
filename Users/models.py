@@ -5,7 +5,8 @@ from django.db import models
 
 
 class CustomUserManager(BaseUserManager):
-    def create_user(self, email, first_name, last_name, password=None):
+
+    def create_user(self, email, username, first_name, last_name, password=None):
         if not email:
             raise ValueError("User must have email")
         if not first_name:
@@ -15,6 +16,7 @@ class CustomUserManager(BaseUserManager):
 
         email = self.normalize_email(email)
         user = self.model(
+            username=username,
             email=email,
             first_name=first_name,
             last_name=last_name,
@@ -25,8 +27,8 @@ class CustomUserManager(BaseUserManager):
 
         return user
 
-    def create_superuser(self, email, first_name, last_name, password=None):
-        user = self.create_user(email, first_name, last_name, password)
+    def create_superuser(self, email, username, first_name, last_name, password=None):
+        user = self.create_user(email, username, first_name, last_name, password)
 
         user.is_superuser = True
         user.is_staff = True

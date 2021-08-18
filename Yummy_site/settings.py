@@ -22,7 +22,6 @@ INSTALLED_APPS += [
     # This package is used for create range of date
     'pandas',
 
-
     # Created apps
     'Yummy_site',
     'Yummy.apps.YummyConfig',
@@ -38,9 +37,9 @@ LOGIN_URL = '/users/Register/'
 
 # Static settings
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'Yummy', 'static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, '../Yummy/static')
+    os.path.join(BASE_DIR, 'Yummy', 'static')
 ]
 
 # Media settings

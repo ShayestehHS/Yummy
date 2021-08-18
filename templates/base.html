@@ -107,6 +107,7 @@
     $.ajaxSetup({
         headers: {"X-CSRFToken": '{{csrf_token}}'}
     });
+    // Change cursor on AJAX call
     $(document).ajaxStart(function () {
         $('body').css({'cursor': 'wait'})
     });
