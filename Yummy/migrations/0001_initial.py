@@ -56,7 +56,7 @@ class Migration(migrations.Migration):
                 ('courtesy', models.DecimalField(decimal_places=3, max_digits=4)),
                 ('description', models.TextField(max_length=200)),
                 ('restaurant', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='Yummy.restaurant')),
-                ('user', models.ForeignKey(default=Yummy.models.Get_default_user, on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                ('user', models.ForeignKey( on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
             ],
         ),
         migrations.CreateModel(

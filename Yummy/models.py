@@ -6,6 +6,7 @@ from mapbox import Geocoder
 from taggit.managers import TaggableManager
 
 from Users.models import User
+from Yummy_site import settings
 from Yummy_site.settings import MAPBOX_KEY
 from utility import Compress
 
@@ -19,33 +20,30 @@ def get_upload_path_for_image(instance, filename):
                         filename)
 
 
-def Get_default_user():
-    user = User.objects.get(username='shayestehhs')
-    return user
-
-
 class Restaurant(models.Model):
-    owner = models.OneToOneField(User, related_name='owner',
-                                 on_delete=models.CASCADE, null=True,
-                                 blank=True)
-    name = models.CharField(max_length=40, unique=True, null=True,
-                            help_text="Maximum length is 40")
-    logo = models.ImageField(upload_to=get_upload_path_for_logo, null=True)
+    owner = models.OneToOneField(to=settings.AUTH_USER_MODEL,
+                                 related_name='owner',
+                                 null=True, blank=True,
+                                 on_delete=models.CASCADE,
+                                 limit_choices_to={'isOwner': True})
+    name = models.CharField(max_length=40, unique=True,
+                            help_text="Maximum length is 40", )
+    logo = models.ImageField(upload_to=get_upload_path_for_logo)
     tags = TaggableManager()
-    phone_number = models.IntegerField(null=True)
-    email = models.EmailField(null=True)
+    phone_number = models.IntegerField()
+    email = models.EmailField()
     website_url = models.URLField(null=True)
-    postal_code = models.IntegerField(null=True)
+    postal_code = models.IntegerField()
     rating = models.DecimalField(decimal_places=3, max_digits=4,
                                  blank=True, null=True)
-    description = RichTextField(null=True)
-    delivery_charge = models.IntegerField(null=True,
-                                          help_text="Just whole numbers are acceptabe.")
+    description = RichTextField()
+    delivery_charge = models.IntegerField(default=0,
+                                          help_text="Just whole numbers are acceptable.")
     is_delivery = models.BooleanField(default=False)
     is_take_away = models.BooleanField(default=False)
     is_popular = models.BooleanField(default=False)
     is_submit = models.BooleanField(default=False,
-                                    help_text="Only superusers can submit.")
+                                    help_text="Only superusers can submit.", )
     # Address
     address = models.CharField(max_length=60, default='None')
     long = models.DecimalField(max_digits=8, decimal_places=6,
@@ -63,9 +61,9 @@ class Restaurant(models.Model):
             features = sorted(response.geojson()['features'],
                               key=lambda x: x['place_name'])
             for f in features:
-                if f.get('place_type') == ['place'] or f.get('place_type') == [
-                    'region']:
-                    self.address = f.get('place_name')
+                place_type = f.get('place_type')
+                if place_type == ['place'] or place_type == ['region']:
+                    self.address = place_type
                     break
 
         super(Restaurant, self).save(*args, **kwargs)
@@ -94,7 +92,7 @@ class OpeningTime(models.Model):
         ordering = ('weekday', 'from_hour')
 
     def __unicode__(self):
-        return f'restaurant name:{self.restaurant.name} :: {self.get_weekday_display()}: {self.from_hour} - {self.to_hour}'
+        return f'restaurant name:{self.restaurant.name} :: {self.get_weekday_display()}: {self.from_hour} - {self.to_hour} '
 
 
 class RestaurantImage(models.Model):
@@ -105,9 +103,9 @@ class RestaurantImage(models.Model):
 
     def delete(self, using=None, keep_parents=True):
         # Delete Photo when => user delete image
-        imgPath = self.image.path
-        if os.path.isfile(imgPath):
-            os.remove(imgPath)
+        img_path = self.image.path
+        if os.path.isfile(img_path):
+            os.remove(img_path)
         # Call the "real" save() method.
         super(RestaurantImage, self).delete()
 
@@ -124,8 +122,7 @@ class RestaurantImage(models.Model):
 class RestaurantReview(models.Model):
     decimal_help_text = "Maximum number is 9999.999"
     restaurant = models.ForeignKey(to=Restaurant, on_delete=models.CASCADE)
-    user = models.ForeignKey(default=Get_default_user, to=User,
-                             on_delete=models.CASCADE)
+    user = models.ForeignKey(to=settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
 
     food_quality = models.DecimalField(decimal_places=3, max_digits=4,
                                        help_text=decimal_help_text)

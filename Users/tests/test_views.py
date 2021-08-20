@@ -1,9 +1,8 @@
-from django.contrib.auth import get_user_model, logout, login
+from django.contrib.auth import get_user_model
 from django.db import IntegrityError
 from django.test import Client, TestCase
 from django.urls import reverse
 from rest_framework import status
-from django.contrib.auth import get_user
 from django.contrib.messages import get_messages
 from Users.models import User
 
@@ -14,7 +13,7 @@ logOut_url = reverse('logout')
 
 def post_ajax(url, data, client):
     res = client.post(url, data=data,
-                      content_type='application/json;charset=UTF-8',
+                      content_type='application/json',
                       HTTP_X_REQUESTED_WITH='XMLHttpRequest', )
     return res
 
@@ -46,15 +45,14 @@ class SignUpTest(TestCase):
 
     def test_AJAX_response_with_valid_value(self):
         """ Test AJAX response with valid email is return True """
-        email = "AJAX@test.com"
-        res = post_ajax(signUp_url, {'email': email}, self.client)
+        res = post_ajax(signUp_url, {'email': "AJAX@test.com"}, self.client)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertJSONEqual(str(res.content, encoding='utf8'), {'email': "True"})
 
     def test_AJAX_response_with_invalid_value(self):
         """ Test AJAX response with exists email in database is return False """
-        email = self.setUp_user_data.get('email')
+        email = self.setUp_user_data['email']
         res = post_ajax(signUp_url, {'email': email}, self.client)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)

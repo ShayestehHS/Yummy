@@ -8,12 +8,12 @@ from django.urls import reverse
 from django_comments_xtd.models import XtdComment
 from taggit.managers import TaggableManager
 
-from Users.models import User
+from Yummy_site import settings
 from Yummy_site.settings import EMAIL_HOST_USER
 from utility.Compress import compress_image
 
 
-def Upload_path_for_blog(instance, filename):
+def upload_path_for_blog(instance, filename):
     return os.path.join('Blog', instance.title, filename)
 
 
@@ -25,14 +25,18 @@ def custom_image_validator(value):
 
 
 class Blog(models.Model):
-    author = models.ForeignKey(to=User, on_delete=models.CASCADE)
-    title = models.CharField(max_length=16, help_text="Maximum length is 16")
+    author = models.ForeignKey(to=settings.AUTH_USER_MODEL, default=None,
+                               on_delete=models.CASCADE,
+                               limit_choices_to={'is_active': True})
+    title = models.CharField(max_length=16, unique=True,
+                             help_text="Maximum length is 16")
     tags = TaggableManager()
-    picture = models.ImageField(upload_to=Upload_path_for_blog,
+    picture = models.ImageField(upload_to=upload_path_for_blog,
                                 validators=[custom_image_validator],
                                 help_text="Valid extension's are JPG,PNG")
     blog_text = models.TextField(max_length=1024, blank=False, null=False,
-                                 help_text='Maximum length is 1024', )
+                                 help_text='Maximum length is 1024 <br/>'
+                                           'Minimum length is 20', )
     is_approved = models.BooleanField(default=False, verbose_name='Approved',
                                       help_text="Only approved blogs show on the 'blogs' page")
     is_primary = models.BooleanField(default=False, verbose_name='Primary',
@@ -40,17 +44,18 @@ class Blog(models.Model):
     created_date = models.DateField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
+        self.full_clean()
+
         self.picture = compress_image(self.picture)
         self.created_date = datetime.datetime.now()
-        if self.is_approved and self.pk:
-            subscribed_email = Subscriber.objects.all().values_list('email',
-                                                                    flat=True)
+        # On create
+        if self.is_approved and not self.pk:
+            subscribed_email = Subscriber.objects.all().values_list('email', flat=True)
             send_mail(subject="New blog",
                       message=f"New blog is posted in {self.created_date}\n\n"
                               f"{self.blog_text[:20]}...",
                       from_email=EMAIL_HOST_USER,
-                      recipient_list=subscribed_email,
-                      )
+                      recipient_list=subscribed_email, )
         super(Blog, self).save()
 
     def __str__(self):

@@ -19,7 +19,7 @@ class Migration(migrations.Migration):
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('title', models.CharField(max_length=16)),
-                ('picture', models.ImageField(upload_to=Blog.models.Upload_path_for_blog)),
+                ('picture', models.ImageField(upload_to=Blog.models.upload_path_for_blog)),
                 ('blog_text', models.TextField(max_length=1024)),
                 ('is_approved', models.BooleanField(default=False, verbose_name='Approved')),
                 ('is_primary', models.BooleanField(default=False)),

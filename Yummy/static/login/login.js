@@ -31,9 +31,10 @@ $(document).ready(function () {
             if (validateEmail($(this).val())) {
                 $.ajax({
                     type: 'POST',
-                    url: $('#signUp_form').attr('action'),
-                    data: {'email': emailField.val()},
                     dataType: 'json',
+                    contentType: "application/json",
+                    url: $('#signUp_form').attr('action'),
+                    data: JSON.stringify({email: emailField.val()}),
                     success: function (data) {
                         if (data.email === "True") {
                             emailField.css('box-shadow', '0px 14px 12px -5px #44FF36');

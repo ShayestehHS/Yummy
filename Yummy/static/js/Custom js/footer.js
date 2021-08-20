@@ -9,7 +9,7 @@ btnSubmit.click(function (event) {
         $.ajax({
             type: 'POST',
             url: $('#subscribe_form').data('url_ajax'),
-            data: {'email': subsEmail.val()},
+            data:  JSON.stringify({'email': subsEmail.val()}),
             dataType: 'json',
             beforeSend: () => spinner.show(),
             success: function (data) {
