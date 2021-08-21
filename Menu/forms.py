@@ -6,7 +6,8 @@ from Menu.models import Item
 class MenuForm(forms.ModelForm):
     class Meta:
         model = Item
-        exclude = ('menu',)
+        fields = ('name', 'picture', 'price',
+                  'category', 'description',)
         widgets = {
             'description': forms.Textarea(
                 attrs={

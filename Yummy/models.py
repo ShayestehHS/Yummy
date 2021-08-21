@@ -5,7 +5,6 @@ from django.db import models
 from mapbox import Geocoder
 from taggit.managers import TaggableManager
 
-from Users.models import User
 from Yummy_site import settings
 from Yummy_site.settings import MAPBOX_KEY
 from utility import Compress
@@ -35,27 +34,27 @@ class Restaurant(models.Model):
     website_url = models.URLField(null=True)
     postal_code = models.IntegerField()
     rating = models.DecimalField(decimal_places=3, max_digits=4,
-                                 blank=True, null=True)
+                                 blank=True, null=True, )
     description = RichTextField()
     delivery_charge = models.IntegerField(default=0,
                                           help_text="Just whole numbers are acceptable.")
     is_delivery = models.BooleanField(default=False)
     is_take_away = models.BooleanField(default=False)
     is_popular = models.BooleanField(default=False)
-    is_submit = models.BooleanField(default=False,
-                                    help_text="Only superusers can submit.", )
+    is_submit = models.BooleanField(default=False, )
     # Address
-    address = models.CharField(max_length=60, default='None')
+    address = models.CharField(max_length=60, default='address')
     long = models.DecimalField(max_digits=8, decimal_places=6,
                                default=51.337888)
     lat = models.DecimalField(max_digits=8, decimal_places=6,
                               default=35.699784)
-    city = models.CharField(max_length=15, null=False)
+    city = models.CharField(max_length=15, null=False, default='city')
 
     def save(self, *args, **kwargs):
+        self.logo = Compress.compress_image(self.logo, 30)
+        self.full_clean()
         if not self.pk:
             # on 'Create'
-            self.logo = Compress.compress_image(self.logo, 30)
             geocoder = Geocoder(access_token=MAPBOX_KEY)
             response = geocoder.reverse(lat=self.lat, lon=self.long)
             features = sorted(response.geojson()['features'],
@@ -83,10 +82,10 @@ class OpeningTime(models.Model):
         ("Friday", "Friday"),
     ]
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE,
-                                   related_name='Opening_time', unique=False)
-    weekday = models.CharField(choices=WEEKDAYS, max_length=9, unique=False)
-    from_hour = models.TimeField(null=True, blank=True, unique=False)
-    to_hour = models.TimeField(null=True, blank=True, unique=False)
+                                   related_name='Opening_time')
+    weekday = models.CharField(choices=WEEKDAYS, max_length=9)
+    from_hour = models.TimeField(null=True, blank=True)
+    to_hour = models.TimeField(null=True, blank=True)
 
     class Meta:
         ordering = ('weekday', 'from_hour')

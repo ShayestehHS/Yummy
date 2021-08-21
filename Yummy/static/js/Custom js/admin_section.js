@@ -20,11 +20,11 @@ $('.save').on('click', function () {
     const editedItem_category = editedItem.find('.MenuForm_category').find(":selected").text();
     const editedItem_price = editedItem.find('.MenuForm_price').val();
     const editedItem_description = editedItem.find('.MenuForm_description').val();
-    alert(editedItem_description)
+
     const Url = $('#UrlAJAX_updateItem').val();
     $.ajax({
         url: Url,
-        type:'POST',
+        type: 'POST',
         data: {
             'id': editedItem_id,
             'name': editedItem_name,
@@ -58,7 +58,7 @@ $('#modal_delete_btn').on('click', function () {
                 RefreshList(removedItem.find('h4').data('number'));
                 // Remove item form list
                 removedItem.fadeOut("normal", () => $(this).remove());
-                ShowMessageAjax('success','Your item is deleted from menu 😉');
+                ShowMessageAjax('success', 'Your item is deleted from menu 😉');
             }
         },
         error: function (data) {
@@ -75,9 +75,11 @@ $('#modal_delete_btn').on('click', function () {
 
 $("#Add_item").on('click', function () {
     const Url = $("#UrlAJAX_addItem").val();
+    const form = $("#MenuForm");
     $.ajax({
         url: Url,
         type: "GET",
+        data: {'form': form.serialize()},
         async: false,
         success: function (data) {
             $('#all_items').html(data);

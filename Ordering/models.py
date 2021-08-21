@@ -10,7 +10,7 @@ class Order(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     restaurant = models.ForeignKey(Restaurant, on_delete=models.SET_NULL, null=True, blank=True)
     is_paid = models.BooleanField(default=False)
-    payout = models.DecimalField(max_digits=100, decimal_places=2, default=0)
+    payout = models.DecimalField(max_digits=5, decimal_places=2, default=0)
 
     def sum_payout(self):
         sumItems = 0
@@ -62,7 +62,7 @@ class CartItem(models.Model):
                               related_name='cartItems')
     item = models.ForeignKey(Item, on_delete=models.CASCADE, null=True)
     quantity = models.PositiveSmallIntegerField(default=0)
-    total_price = models.DecimalField(max_digits=100, decimal_places=2, default=0)
+    total_price = models.DecimalField(max_digits=5, decimal_places=2, default=0)
 
     def Add(self):
         self.quantity += 1

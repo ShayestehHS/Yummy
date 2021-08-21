@@ -9,6 +9,6 @@ admin.site.unregister(Group)
 
 
 @admin.register(Driver)
-class RestaurantAdmin(admin.ModelAdmin):
+class DriverAdmin(admin.ModelAdmin):
     list_filter = ('motorbike', 'student', 'driver_lic', 'mobile')
     list_display = ('user', 'phone_number',)

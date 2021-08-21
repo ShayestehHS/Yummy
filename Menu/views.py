@@ -1,3 +1,5 @@
+import json
+
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponseForbidden
 from django.shortcuts import render, get_object_or_404
@@ -11,19 +13,19 @@ from utility.opening_utility import today_opening_time
 from utility.restaurant_utility import makePaginate
 
 
-def FilterByData(request_GET):
-    type_array = request_GET.getlist('type[]')
-    rating = request_GET['rating']
-    isTakeAway = True if request_GET['isTakeAway'] == "true" else False
-    isDelivery = True if request_GET['isDelivery'] == "true" else False
-    popularity = request_GET['popularity']
+def FilterByData(received_data):
+    type_array = received_data['type']
+    rating = received_data['rating']
+    is_take_away = True if received_data['isTakeAway'] == "true" else False
+    is_delivery = True if received_data['isDelivery'] == "true" else False
+    is_popular = True if received_data['popularity'] == "true" else False
     restaurant = Restaurant.objects.filter(
         tags__name__in=type_array,
         rating__gt=rating,
-        is_take_away=isTakeAway,
-        is_delivery=isDelivery,
-        is_popular=False if popularity == 'false' else True
-    ).distinct()
+        is_take_away=is_take_away,
+        is_delivery=is_delivery,
+        is_popular=is_popular,
+    ).order_by('name').distinct()
     return restaurant
 
 
@@ -32,7 +34,7 @@ def Menu_of_restaurant(request, id):
     """ GET menu of restaurant by id """
     restaurant = get_object_or_404(Restaurant, id=id)
     order_list = Order.objects.get(user=request.user, is_paid=False)
-    items = Item.objects.filter(restaurant_id=id)
+    items = Item.objects.filter(menu__restaurant=restaurant)
 
     starter = items.filter(category='Starter')
     main_course = items.filter(category='Main course')
@@ -51,25 +53,26 @@ def Menu_of_restaurant(request, id):
     return render(request, 'restaurant/menu.html', context)
 
 
-@http.require_GET
+@http.require_POST
 def filter_restaurants(request, page):
     """
-    GET:
-        Get restaurants by filters params that send via AJAX
+    POST:
+        Getting restaurants by filters params that send via AJAX
         Paginate filtered restaurants
         Send context to the page that the user is coming from it
     """
     if request.is_ajax():
-        allRestaurant = FilterByData(request.GET)
+        received_json_data = json.loads(request.body)
+        filtered_restaurants = FilterByData(received_json_data)
         context = {
-            'allRestaurant': makePaginate(allRestaurant, page),
-            'today_weekday': today_opening_time(allRestaurant),
+            'allRestaurant': makePaginate(filtered_restaurants, page),
+            'today_weekday': today_opening_time(filtered_restaurants),
         }
 
-        senderPath = request.GET['senderPath']
-        if '/list_page/' in senderPath:
+        sender_path = received_json_data['senderPath']
+        if '/list_page/' in sender_path:
             template = 'include/grid_list/list.html'
-        elif '/grid_list/' in senderPath:
+        elif '/grid_list/' in sender_path:
             template = 'include/grid_list/grid.html'
         else:
             return JsonResponse({}, status=400)
@@ -103,11 +106,12 @@ def deleteItem_form(request):
         raise HttpResponseForbidden
 
     if request.is_ajax():
-        item_ID = request.POST['item_ID']
-        item = Item.objects.filter(id=item_ID).order_by('name')
+        received_json_data = json.loads(request.body)
+        item_id = received_json_data['item_ID']
+        item = Item.objects.filter(id=item_id).order_by('name')
         try:
             item.delete()
-            response = JsonResponse({'result': 'success'})
+            response = JsonResponse({'result': 'success'}, status=200)
         except:
             response = JsonResponse({'result': 'error'}, status=400)
         return response
@@ -121,14 +125,17 @@ def addItem_form(request):
         raise HttpResponseForbidden
 
     if request.is_ajax():
-        form = MenuForm(request.POST or None, request.FILES)
+        form = MenuForm(data=request.POST, files=request.FILES)
+
         if form.is_valid():
+            menu = Menu.objects.get(restaurant__owner=request.user)
             item = form.save(commit=False)
-            item.menu = Menu.objects.get(restaurant__owner=request.user)
+            item.menu = menu
             item.save()
-            menu = Item.objects.filter(menu__restaurant__owner=request.user)
+            items = Item.objects.filter(menu=menu)
             return render(request,
-                          'include/../templates/restaurant/menu_items.html', {'menu': menu})
+                          'restaurant/menu_items.html', {'items': items})
+
 
 
 @login_required
@@ -139,11 +146,13 @@ def updateItem_form(request):
         raise HttpResponseForbidden
 
     if request.is_ajax():
-        edited_item = request.POST
+        edited_item = json.loads(request.body)
         item = Item.objects.get(id=edited_item['id'])
+
         item.name = edited_item['name']
         item.category = edited_item['category']
         item.price = edited_item['price']
         item.description = edited_item['description']
+
         item.save()
-        return JsonResponse({})
+        return JsonResponse({}, status=200)

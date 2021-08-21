@@ -96,6 +96,7 @@ class RestaurantAdmin(admin.ModelAdmin):
     ordering = ['name']
     search_fields = ['name']
     list_filter = ['is_submit', 'is_popular', 'is_take_away', 'is_delivery']
+    readonly_fields = ['rating',]
 
 
 ########################## Unregister

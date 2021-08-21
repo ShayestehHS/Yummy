@@ -47,19 +47,19 @@ function GetSelectedTag() {
     var type = [];
     $('#tag_list :checkbox').not($('[data-number~="0"]')[0]).each(function () {
         if ($(this).is(':checked')) {
-            type.push($(this).data("tag"));
+            type.push($(this).data("tag")); // data-tag ={{ tag }} => tagName
         }
     })
     return type
 }
-
 
 $('#submitForm').on('click', function (e) {
     e.preventDefault();
     const Url = $('#FilterForm').data('url_ajax');
     alert(Url)
     $.ajax({
-        type: 'GET',
+        type: 'POST',
+        contentType: "application/json",
         url: Url,
         async: false,
         data: {

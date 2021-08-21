@@ -4,7 +4,7 @@ from django.test import TestCase
 from Users.models import Driver
 
 
-class PublicModelTests(TestCase):
+class PublicUserModelTests(TestCase):
     def test_create_user_with_email_successful(self):
         """Test creating a user with email is successful"""
         email = "test@test.com"
@@ -43,7 +43,7 @@ class PublicModelTests(TestCase):
         self.assertNotEqual(user.password, password)
 
 
-class PrivateModelTest(TestCase):
+class PrivateUserModelTest(TestCase):
     def setUp(self):
         self.user = get_user_model().objects.create_user(
             email="private@test.com",
@@ -53,10 +53,10 @@ class PrivateModelTest(TestCase):
             password="Password123",
         )
         self.client.force_login(self.user)
-        return super(PrivateModelTest, self).setUp()
+        return super(PrivateUserModelTest, self).setUp()
 
     def tearDown(self):
-        return super(PrivateModelTest, self).tearDown()
+        return super(PrivateUserModelTest, self).tearDown()
 
     def test_create_driver(self):
         """Test creating driver is successfully"""

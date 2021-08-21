@@ -1,13 +1,11 @@
 import io
 
-from django.core.exceptions import ValidationError, ObjectDoesNotExist
+from django.core.exceptions import ValidationError
 from django.test import TestCase
 from Blog.models import Blog
 from django.contrib.auth import get_user_model
-from django.db import IntegrityError
 from PIL import Image
 from taggit.models import Tag
-from django.core import mail
 
 
 def generate_photo_file(pic_format='.png'):
