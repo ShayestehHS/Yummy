@@ -9,11 +9,12 @@ from django.http import Http404, JsonResponse
 from django.shortcuts import redirect, render
 from django.views.decorators import http
 from django.views.decorators.csrf import csrf_exempt
-from termcolor import colored
+
 
 from Users.forms import SignUpForm
 from Users.models import User
 from utility.EmailService import EmailService
+from Ordering.models import Order
 
 
 def MakeConfirmEmailCode(n):
@@ -44,18 +45,18 @@ def Confirm_email(request, UserCode):
 
     if request.method == 'POST':
         # Working on verification of user
-        SentCode = request.POST['Email_Code']
-        UserCode = request.POST['UserCode']
-        user_model = get_user_model()
-        user = user_model.objects.filter(confirmEmailCode=SentCode).first()
+        sent_code = request.POST['Email_Code']
+        user_code = request.POST['UserCode']
+        user = get_user_model().objects.filter(confirmEmailCode=sent_code).first()
         if user:
             user.is_active = True
             user.isConfirmEmail = True
             user.uniqueCode = uuid.uuid4().hex[:16].upper()
             user.confirmEmailCode = MakeConfirmEmailCode(6)
+            user.cart = Order.objects.create(user=user)
             user.save(
                 update_fields=['is_active', 'isConfirmEmail',
-                               'uniqueCode','confirmEmailCode',])
+                               'uniqueCode', 'confirmEmailCode', ])
             login(request, user,
                   backend='django.contrib.auth.backends.ModelBackend')
             messages.success(request, 'Your registration was successful')
@@ -71,7 +72,7 @@ def Confirm_email(request, UserCode):
                     return redirect('ConfirmEmail', f"{UserCode}")
                 else:
                     user.delete()
-                    messages.error(request,"You can't submit code again\nPlease fill form again")
+                    messages.error(request, "You can't submit code again\nPlease fill form again")
                     return redirect('register')
 
     elif request.method == "GET":
@@ -87,7 +88,7 @@ def Confirm_email(request, UserCode):
                           context={'UserCode': UserCode, 'userTry': 3 - user.userTry})
 
 
-def Register_Login(request):
+def login_or_register(request):
     if not request.user.is_authenticated:
         # User clicked on register/login button
         form = SignUpForm
@@ -101,40 +102,36 @@ def Register_Login(request):
 @csrf_exempt
 @http.require_POST
 def SignUp(request):
-    if not request.is_ajax():
-        form = SignUpForm(request.POST)
-        if form.is_valid():
-            user_data = form.save(commit=False)
-            user_data.is_active = False
-            user_data.confirmEmailCode = MakeConfirmEmailCode(6)
-            user_data.isConfirmEmail = False
-            user_data.uniqueCode = uuid.uuid4().hex[:16].upper()
-            user_data.save()
-            # Start: send_email
-            context_email = {
-                'title': 'Confirmation email',
-                'description': f'Hi, {user_data.username}\nYour activation code is:',
-                'ConfirmEmail': user_data.confirmEmailCode
-            }
-            EmailService.send_email(
-                title='Verification email',
-                to=[user_data.email],
-                template_name='email/ConfirmEmail.html',
-                context=context_email
-            )
-            # End : send_email
-            return redirect('ConfirmEmail', f"{user_data.uniqueCode}")
-
-        else:
-            # else => form is not valid
-            messages.error(request, 'Form is not valid')
-            return render(request, 'registration/login.html', {'SUForm': form})
-    else:
-        # else => request is AJAX
-        received_json_data = json.loads(request.body)
-        emailAJ = received_json_data['email']
-        is_exists = User.objects.filter(email__iexact=emailAJ).exists()
+    if request.is_ajax():
+        checking_email = json.loads(request.body)['email']
+        is_exists = User.objects.filter(email__iexact=checking_email).exists()
         return JsonResponse(data={'email': f"{not is_exists}"})
+
+    form = SignUpForm(request.POST)
+    if not form.is_valid():
+        messages.error(request, 'Form is not valid')
+        return render(request, 'registration/login.html', {'SUForm': form})
+
+    user_data = form.save(commit=False)
+    user_data.is_active = False
+    user_data.confirmEmailCode = MakeConfirmEmailCode(6)
+    user_data.isConfirmEmail = False
+    user_data.uniqueCode = uuid.uuid4().hex[:16].upper()
+    user_data.save()
+    # Start: send_email
+    context_email = {
+        'title': 'Confirmation email',
+        'description': f'Hi, {user_data.username}\nYour activation code is:',
+        'ConfirmEmail': user_data.confirmEmailCode
+    }
+    EmailService.send_email(
+        title='Verification email',
+        to=[user_data.email],
+        template_name='email/ConfirmEmail.html',
+        context=context_email
+    )
+    # End : send_email
+    return redirect('ConfirmEmail', f"{user_data.uniqueCode}")
 
 
 def Logout(request):

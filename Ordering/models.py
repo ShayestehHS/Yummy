@@ -7,7 +7,7 @@ from Yummy.models import Restaurant
 
 
 class Order(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE,related_name='cart')
     restaurant = models.ForeignKey(Restaurant, on_delete=models.SET_NULL, null=True, blank=True)
     is_paid = models.BooleanField(default=False)
     payout = models.DecimalField(max_digits=5, decimal_places=2, default=0)
