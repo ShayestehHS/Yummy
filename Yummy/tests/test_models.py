@@ -26,7 +26,7 @@ class PublicModelTest(TestCase):
             'password': 'Password123',
             'isOwner': True,
         }
-        self.user = get_user_model().objects.create(**user_data)
+        self.user = get_user_model().objects.create_user(**user_data)
 
         super(PublicModelTest, self).setUp()
 
@@ -82,7 +82,7 @@ class PublicModelTest(TestCase):
             'delivery_charge': 10,
         }
 
-        user_second = get_user_model().objects.create(**user_data_second)
+        user_second = get_user_model().objects.create_user(**user_data_second)
         Restaurant.objects.create(owner=self.user, **restaurant_data_first)
 
         with self.assertRaisesRegex(ValidationError, 'Restaurant with this Name already exists.'):

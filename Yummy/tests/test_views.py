@@ -42,7 +42,7 @@ class PublicYummyViewsTest(TestCase):
             'lat': 12.123456,
         }
 
-        self.owner = get_user_model().objects.create(**self.owner_data)
+        self.owner = get_user_model().objects.create_user(**self.owner_data)
         self.restaurant = Restaurant.objects.create(owner=self.owner, **self.restaurant_data, logo=pic)
         self.client = Client()
 
@@ -154,8 +154,8 @@ class PrivateYummyViewsTest(TestCase):
         }
 
         self.client = Client()
-        self.user = get_user_model().objects.create(**user_data)
-        self.owner = get_user_model().objects.create(**owner_data)
+        self.user = get_user_model().objects.create_user(**user_data)
+        self.owner = get_user_model().objects.create_user(**owner_data)
         self.restaurant = Restaurant.objects.create(owner=self.owner, **restaurant_data, logo=pic)
 
         self.client.force_login(self.user)

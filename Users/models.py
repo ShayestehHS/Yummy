@@ -4,10 +4,9 @@ from django.contrib.auth.models import User
 from django.db import models
 
 
-
 class CustomUserManager(BaseUserManager):
 
-    def create_user(self, email, username, first_name, last_name, password=None):
+    def create_user(self, email, username, first_name, last_name, password=None, **extra_fields):
         if not email:
             raise ValueError("User must have email")
         if not first_name:
@@ -16,20 +15,17 @@ class CustomUserManager(BaseUserManager):
             raise ValueError("User must have last name")
 
         email = self.normalize_email(email)
-        user = self.model(
-            username=username,
-            email=email,
-            first_name=first_name,
-            last_name=last_name,
-        )
+        user = self.model(username=username, email=email,
+                          first_name=first_name, last_name=last_name,
+                          **extra_fields)
 
         user.set_password(password)
         user.save(using=self.db)
 
         return user
 
-    def create_superuser(self, email, username, first_name, last_name, password=None):
-        user = self.create_user(email, username, first_name, last_name, password)
+    def create_superuser(self, email, username, first_name, last_name, password=None, **extra_fields):
+        user = self.create_user(email, username, first_name, last_name, password, **extra_fields)
 
         user.is_superuser = True
         user.is_staff = True

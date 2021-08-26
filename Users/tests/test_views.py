@@ -36,8 +36,8 @@ class SignUpTest(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.setUp_user_data = create_data('setUp', 'setup@setup.com')
-        self.setUp_user = get_user_model().objects.create_user(**self.setUp_user_data)
+        self.user_data = create_data('setUp', 'setup@setup.com')
+        self.user = get_user_model().objects.create_user(**self.user_data)
         return super(SignUpTest, self).setUp()
 
     def tearDown(self):
@@ -52,7 +52,7 @@ class SignUpTest(TestCase):
 
     def test_AJAX_response_with_invalid_value(self):
         """ Test AJAX response with exists email in database is return False """
-        email = self.setUp_user_data['email']
+        email = self.user_data['email']
         res = post_ajax(signUp_url, {'email': email}, self.client)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
@@ -71,7 +71,7 @@ class SignUpTest(TestCase):
 
     def test_SignUp_user_with_exists_email(self):
         """ Test signUp function with exists email is fail """
-        user_data = create_data('testUsername', self.setUp_user_data['email'])
+        user_data = create_data('testUsername', self.user_data['email'])
 
         with self.assertRaises(Exception) as raised:
             res = self.client.post(signUp_url, data=user_data)
@@ -120,8 +120,8 @@ class LoginTest(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.setUp_user_data = create_data('loginUsername', 'login@test.com')
-        self.setUp_user = get_user_model().objects.create_user(**self.setUp_user_data)
+        self.user_data = create_data('loginUsername', 'login@test.com')
+        self.user = get_user_model().objects.create_user(**self.user_data)
         return super(LoginTest, self).setUp()
 
     def tearDown(self):
@@ -130,8 +130,8 @@ class LoginTest(TestCase):
     def test_login_with_valid_data(self):
         """ Test login function with valid data is successfully """
         next_page = reverse('home')
-        res = self.client.post(login_url, data={'email': self.setUp_user_data['email'],
-                                                'password': self.setUp_user_data['password'],
+        res = self.client.post(login_url, data={'email': self.user_data['email'],
+                                                'password': self.user_data['password'],
                                                 'next': next_page, })
 
         self.assertEqual(res.status_code, status.HTTP_302_FOUND)
@@ -139,7 +139,7 @@ class LoginTest(TestCase):
 
     def test_login_with_invalid_password(self):
         """ Test login function with invalid password is fail """
-        res = self.client.post(login_url, data={'email': self.setUp_user_data['email'],
+        res = self.client.post(login_url, data={'email': self.user_data['email'],
                                                 'password': "WrongPassword", }, )
 
         self.assertEqual(res.status_code, status.HTTP_302_FOUND)
@@ -148,7 +148,7 @@ class LoginTest(TestCase):
     def test_login_with_invalid_email(self):
         """ Test login function with invalid email address is fail """
         res = self.client.post(login_url, data={'email': 'login@invalid.com',
-                                                'password': self.setUp_user_data['password'], })
+                                                'password': self.user_data['password'], })
 
         self.assertEqual(res.status_code, status.HTTP_302_FOUND)
         self.assertEqual(res['location'], reverse('register'))
@@ -156,9 +156,11 @@ class LoginTest(TestCase):
 
 class LogoutTest(TestCase):
     def setUp(self):
-        self.client = Client()
         self.user_data = create_data('logoutUsername', 'login@test.com')
-        self.setUp_user = get_user_model().objects.create_user(**self.user_data)
+
+        self.client = Client()
+        self.user = get_user_model().objects.create_user(**self.user_data)
+
         self.client.login(email=self.user_data['email'], password=self.user_data['password'])
         return super(LogoutTest, self).setUp()
 
@@ -171,7 +173,7 @@ class LogoutTest(TestCase):
 
     def test_not_authenticated_logout(self):
         """ Test logout function with anonymous user is fail """
-        self.setUp_user = self.client.logout()
+        self.user = self.client.logout()
 
         res = self.client.get(logOut_url)
         messages = [str(message) for message in list(get_messages(res.wsgi_request))]

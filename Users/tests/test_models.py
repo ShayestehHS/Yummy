@@ -8,13 +8,16 @@ class PublicUserModelTests(TestCase):
     def test_create_user_with_email_successful(self):
         """Test creating a user with email is successful"""
         email = "test@test.com"
-        user = get_user_model().objects.create_user(
-            email=email,
-            username='testUsername',
-            first_name="test",
-            last_name="testy",
-            password="Password123",
-        )
+        user_data = {
+            'email': email,
+            'username': 'testUsername',
+            'first_name': "test",
+            'last_name': "testy",
+            'password': "Password123",
+        }
+
+        user = get_user_model().objects.create_user(**user_data)
+
         self.assertEqual(user.email, email)
 
     def test_create_superuser_with_email_successful(self):
@@ -33,25 +36,30 @@ class PublicUserModelTests(TestCase):
     def test_hashing_password(self):
         """Test after creating a user, input password is hashed"""
         password = "Password123"
-        user = get_user_model().objects.create_user(
-            email="test@test.com",
-            username='testUsername',
-            first_name="test",
-            last_name="testy",
-            password=password,
-        )
+        user_data = {
+            'email': "test@test.com",
+            'username': 'testUsername',
+            'first_name': "test",
+            'last_name': "testy",
+            'password': password,
+        }
+
+        user = get_user_model().objects.create_user(**user_data)
+
         self.assertNotEqual(user.password, password)
 
 
 class PrivateUserModelTest(TestCase):
     def setUp(self):
-        self.user = get_user_model().objects.create_user(
-            email="private@test.com",
-            username='privateModel',
-            first_name="test",
-            last_name="testian",
-            password="Password123",
-        )
+        user_data = {
+            'email': "private@test.com",
+            'username': 'privateModel',
+            'first_name': "test",
+            'last_name': "testian",
+            'password': "Password123",
+        }
+        self.user = get_user_model().objects.create_user(**user_data)
+
         self.client.force_login(self.user)
         return super(PrivateUserModelTest, self).setUp()
 

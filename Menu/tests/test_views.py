@@ -53,7 +53,7 @@ class PublicMenuViewTest(TestCase):
         }
 
         self.client = Client()
-        self.user = get_user_model().objects.create(**user_data)
+        self.user = get_user_model().objects.create_user(**user_data)
         self.restaurant = Restaurant.objects.create(owner=self.user, **restaurant_data)
         self.menu = Menu.objects.create(restaurant=self.restaurant)
 
@@ -107,7 +107,7 @@ class PrivateMenuViewsTest(TestCase):
         }
 
         self.client = Client()
-        self.user = get_user_model().objects.create(**user_data)
+        self.user = get_user_model().objects.create_user(**user_data)
         self.restaurant = Restaurant.objects.create(owner=self.user, **restaurant_data)
         self.menu = Menu.objects.create(restaurant=self.restaurant)
         self.item = Item.objects.create(menu=self.menu, **item_data)

@@ -20,22 +20,25 @@ def generate_photo_file(pic_format='.png'):
 
 class ItemModelTest(TestCase):
     def setUp(self):
-        user = get_user_model().objects.create(
-            username='itemModelUsername',
-            email='ItemModel@test.com',
-            first_name='test',
-            last_name='testian',
-            isOwner=True, )
-        restaurant = Restaurant.objects.create(
-            owner=user,
-            name='test restaurant',
-            logo=generate_photo_file(),
-            phone_number=1234455,
-            email='restaurant@test.com',
-            website_url='https://www.test.com',
-            postal_code=2323,
-            description='Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-            delivery_charge=12, )
+        user_data = {
+            'username': 'itemModelUsername',
+            'email': 'ItemModel@test.com',
+            'first_name': 'test',
+            'last_name': 'testian',
+            'isOwner': True,
+        }
+        restaurant_data = {
+            'name': 'test restaurant',
+            'logo': generate_photo_file(),
+            'phone_number': 1234455,
+            'email': 'restaurant@test.com',
+            'website_url': 'https://www.test.com',
+            'postal_code': 2323,
+            'description': 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
+            'delivery_charge': 12,
+        }
+        user = get_user_model().objects.create_user(**user_data)
+        restaurant = Restaurant.objects.create(owner=user, **restaurant_data)
 
         self.menu = Menu.objects.create(restaurant=restaurant)
 
