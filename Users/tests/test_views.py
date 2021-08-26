@@ -12,10 +12,10 @@ logOut_url = reverse('logout')
 
 
 def post_ajax(url, data, client):
-    res = client.post(url, data=data,
-                      content_type='application/json',
-                      HTTP_X_REQUESTED_WITH='XMLHttpRequest', )
-    return res
+    response = client.post(url, data=data,
+                           content_type='application/json',
+                           HTTP_X_REQUESTED_WITH='XMLHttpRequest', )
+    return response
 
 
 def create_data(username, email, conf=False):
@@ -63,11 +63,20 @@ class SignUpTest(TestCase):
         user_data = create_data('SignUpTest', 'signUp@valid.com', conf=True)
 
         res = self.client.post(signUp_url, data=user_data)
-        filtered_user = User.objects.filter(email=user_data['email'])
+        filtered_user = get_user_model().objects.filter(email=user_data['email'])
 
+        self.assertEqual(res.status_code, status.HTTP_302_FOUND)
         self.assertTrue(filtered_user.exists())
         self.assertEqual(filtered_user.count(), 1)
-        self.assertEqual(res.status_code, status.HTTP_302_FOUND)
+
+    def test_signUp_create_order_object_for_user(self):
+        """ Test when the user signing up, the order of the user is ready """
+        user_data = create_data('orderModel', 'order@email.com', conf=True)
+
+        res = self.client.post(signUp_url, data=user_data)
+        filtered_user = get_user_model().objects.get(email=user_data['email'])
+
+        self.assertIsNotNone(filtered_user.cart)
 
     def test_SignUp_user_with_exists_email(self):
         """ Test signUp function with exists email is fail """
