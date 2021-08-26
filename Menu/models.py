@@ -36,7 +36,7 @@ class Item(models.Model):
         ('Drink', 'Drink'),
     ]
 
-    menu = models.ForeignKey(Menu, on_delete=models.CASCADE, )
+    menu = models.ForeignKey(Menu, on_delete=models.CASCADE)
     name = models.CharField(max_length=20,
                             help_text="Maximum length is 20", )
     picture = models.ImageField(upload_to=get_upload_path_picture, validators=[custom_image_validator, ])

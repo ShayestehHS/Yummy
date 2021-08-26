@@ -3,16 +3,16 @@ from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 from Yummy.models import Restaurant
 
 
-def makePaginate(objects, page_number=1, number_in_page=6):
-    paginator = Paginator(objects, number_in_page)
+def makePaginate(objects, page_number=1, per_page=6):
+    paginator = Paginator(objects, per_page)
     try:
-        allObjects = paginator.page(page_number)
+        all_objects = paginator.page(page_number)
     except PageNotAnInteger:
-        allObjects = paginator.page(1)
+        all_objects = paginator.page(1)
     except EmptyPage:
-        allObjects = paginator.page(paginator.num_pages)
+        all_objects = paginator.page(paginator.num_pages)
 
-    return allObjects
+    return all_objects
 
 
 def get_allRestaurant(searched_key, page_number=1):

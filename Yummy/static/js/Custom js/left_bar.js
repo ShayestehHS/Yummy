@@ -8,7 +8,7 @@ $('#sort_rating').on('change', function () {
     const tag = $("#searched_tag").val();
     $.ajax({
         url: $(this).data('url_ajax') + "?mode=" + mode,
-        type: 'GET',
+        type: 'POST',
         data: {
             'senderPath': window.location.href,
             'key': key,

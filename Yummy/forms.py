@@ -1,5 +1,6 @@
 from django import forms
 from django.forms import RadioSelect
+from ckeditor.widgets import CKEditorWidget
 
 import Users.models as users_models
 import Yummy.models as yummy_models
@@ -28,12 +29,14 @@ class DriverForm(forms.ModelForm):
 class SubmitRestaurantForm(forms.ModelForm):
     class Meta:
         model = yummy_models.Restaurant
-        fields = ('phone_number', 'name',
-                  'website_url', 'is_delivery', 'is_take_away',
-                  'long', 'lat', 'postal_code',)
+        fields = ('phone_number', 'name',  # ordered by front end
+                  'website_url', 'email', 'is_delivery', 'is_take_away',
+                  'long', 'lat', 'postal_code',
+                  'logo', 'tags', 'delivery_charge',
+                  'description',)
 
 
-class NewReviewForm(forms.ModelForm):
+class Review_Form(forms.ModelForm):
     Rating = [
         (5, "Perfect"),
         (4, "Good"),
@@ -49,16 +52,15 @@ class NewReviewForm(forms.ModelForm):
 
     class Meta:
         model = yummy_models.RestaurantReview
-        fields = (
-            'food_quality', 'price', 'punctuality', 'courtesy', 'description')
+        fields = ('food_quality', 'price', 'punctuality', 'courtesy', 'description')
         widgets = {
-            'description': forms.Textarea(
-                attrs={'style': 'resize:vertical', 'rows': 4})
+            'description': forms.Textarea(attrs={'style': 'resize:vertical',
+                                                 'rows': 4, })
         }
 
     def __init__(self, *args, **kwargs):
-        super(NewReviewForm, self).__init__(*args, **kwargs)
+        super(Review_Form, self).__init__(*args, **kwargs)
         for field_name, field in self.fields.items():
             if type(field).__name__ == "ChoiceField":
-                field.choices = NewReviewForm.Rating
+                field.choices = Review_Form.Rating
                 field.widgets = forms.Select

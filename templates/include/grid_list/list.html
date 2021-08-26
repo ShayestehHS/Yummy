@@ -1,89 +1,89 @@
 {% load index %}
 <div id="Restaurants">
-	{% for restaurant in allRestaurant %}
-	<div class="strip_list wow fadeIn" data-wow-delay="0.{{ forloop.counter }}s"
-	     data-worth="{{ restaurant.rating }}">
-		{% if restaurant.is_popular %}
-			<div class="ribbon_1">
-				Popular
-			</div>
-		{% endif %}
+    {% for restaurant in allRestaurant %}
+        <div class="strip_list wow fadeIn" data-wow-delay="0.{{ forloop.counter }}s"
+             data-worth="{{ restaurant.rating }}">
+            {% if restaurant.is_popular %}
+                <div class="ribbon_1">
+                    Popular
+                </div>
+            {% endif %}
 
-		<div class="row">
-			<div class="col-md-9 col-sm-9">
-				<div class="desc">
-					<div class="thumb_strip">
-						<a href="{% url 'detail_restaurant' restaurant.id %}">
-							<img src="{{ restaurant.logo.url|default:'#' }}" alt="">
-						</a>
-					</div>
-					<div class="rating">
-						<i class="icon_star voted"></i>
-						<i class="icon_star voted"></i>
-						<i class="icon_star voted"></i>
-						<i class="icon_star voted"></i>
-						<i class="icon_star"></i>
-						(
-						<small>
-							<a href="{% url 'detail_restaurant' restaurant.id %}">
-								{% with restaurant.restaurantreview_set.count as rest_count %}
-									Read {{ rest_count }} review{{ rest_count|pluralize }}
-								{% endwith %}
-							</a>
-						</small>
-						)
-					</div>
-					<h3>{{ restaurant.name }}</h3>
-					<div class="type">
-						{% for tag in restaurant.tags.all %}
-							<a href="{% url 'list_tag' tag.slug 1 %}">{{ tag }}</a>
-							{% if not forloop.last %}/{% endif %}
-						{% empty %}
-							None
-						{% endfor %}
-					</div>
+            <div class="row">
+                <div class="col-md-9 col-sm-9">
+                    <div class="desc">
+                        <div class="thumb_strip">
+                            <a href="{% url 'detail_restaurant' restaurant.id %}">
+                                <img src="{{ restaurant.logo.url|default:'#' }}" alt="">
+                            </a>
+                        </div>
+                        <div class="rating">
+                            <i class="icon_star voted"></i>
+                            <i class="icon_star voted"></i>
+                            <i class="icon_star voted"></i>
+                            <i class="icon_star voted"></i>
+                            <i class="icon_star"></i>
+                            (
+                            <small>
+                                <a href="{% url 'detail_restaurant' restaurant.id %}">
+                                    {% with restaurant.restaurantreview_set.count as rest_count %}
+                                        Read {{ rest_count }} review{{ rest_count|pluralize }}
+                                    {% endwith %}
+                                </a>
+                            </small>
+                            )
+                        </div>
+                        <h3>{{ restaurant.name }}</h3>
+                        <div class="type">
+                            {% for tag in restaurant.tags.all %}
+                                <a href="{% url 'list_tag' tag.slug 1 %}">{{ tag }}</a>
+                                {% if not forloop.last %}/{% endif %}
+                            {% empty %}
+                                None
+                            {% endfor %}
+                        </div>
 
-					<div class="location">
-						{{ restaurant.city }}
-						{# Check: is open or not#}
-						{% if not today_weekday|index:forloop.counter0 == None %}
-							<span class="opening">
+                        <div class="location">
+                            {{ restaurant.city }}
+                            {# Check: is open or not#}
+                            {% if not today_weekday|index:forloop.counter0 == None %}
+                                <span class="opening">
 									Opens at {{ today_weekday|index:forloop.counter0 }}
 								</span>
-						{% else %}
-							<span class="opening">
+                            {% else %}
+                                <span class="opening">
 									closed .
 								</span>
-						{% endif %}
+                            {% endif %}
 
-						Delivery charge: ${{ restaurant.delivery_charge }}
-					</div>
-					<ul>
-						{% if restaurant.is_take_away %}
-							<li>Take away<i class="icon_check_alt2 ok"></i></li>
-						{% else %}
-							<li>Take away<i class="icon_close_alt2 no"></i></li>
-						{% endif %}
+                            Delivery charge: ${{ restaurant.delivery_charge }}
+                        </div>
+                        <ul>
+                            {% if restaurant.is_take_away %}
+                                <li>Take away<i class="icon_check_alt2 ok"></i></li>
+                            {% else %}
+                                <li>Take away<i class="icon_close_alt2 no"></i></li>
+                            {% endif %}
 
-						{% if restaurant.is_delivery %}
-							<li>Delivery<i class="icon_check_alt2 ok"></i></li>
-						{% else %}
-							<li>Delivery<i class="icon_close_alt2 no"></i></li>
-						{% endif %}
-					</ul>
-				</div>
-			</div>
-			<div class="col-md-3 col-sm-3">
-				<div class="go_to">
-					<div>
-						<a href="{% url 'detail_restaurant' restaurant.id %}" class="btn_1">
-							View Detail</a>
-					</div>
-				</div>
-			</div>
-		</div><!-- End row-->
-	</div><!-- End strip_list-->
+                            {% if restaurant.is_delivery %}
+                                <li>Delivery<i class="icon_check_alt2 ok"></i></li>
+                            {% else %}
+                                <li>Delivery<i class="icon_close_alt2 no"></i></li>
+                            {% endif %}
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-md-3 col-sm-3">
+                    <div class="go_to">
+                        <div>
+                            <a href="{% url 'detail_restaurant' restaurant.id %}" class="btn_1">
+                                View Detail</a>
+                        </div>
+                    </div>
+                </div>
+            </div><!-- End row-->
+        </div><!-- End strip_list-->
 
-{% endfor %}
-	{% include 'include/list pages/paginator.html' %}
+    {% endfor %}
+    {% include 'include/list pages/paginator.html' %}
 </div>

@@ -2,29 +2,28 @@ from django.contrib import messages
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count
-from django.http import JsonResponse
+from django.http import HttpResponseBadRequest, JsonResponse
 from django.shortcuts import render, redirect
 from django.views.decorators import http
 from django.views.generic import TemplateView
 from taggit.models import Tag
-from termcolor import colored
 
 import Ordering.models as ordering_models
-import Yummy.forms as yummy_forms
-import Yummy.models as yummy_models
+from Yummy.forms import Review_Form, SubmitRestaurantForm, DriverForm
+from Yummy.models import OpeningTime, Restaurant, RestaurantImage, RestaurantReview
 from Yummy_site.settings import MAPBOX_KEY
-from utility import restaurant_utility, opening_utility
+from utility import restaurant_utility, opening_utility, custom_decorators
 from utility.EmailService import EmailService
 
 
-def baseContext(allRestaurant):
+def base_context(all_restaurants):
     """ Generate contexts for Basics elements of main_pages """
     tags = Tag.objects.annotate(
         num_tag=Count('taggit_taggeditem_items')).order_by('-num_tag')
     context = {
-        'allRestaurant_Count': yummy_models.Restaurant.objects.all().count(),
-        'allRestaurant': allRestaurant,
-        'today_weekday': opening_utility.today_opening_time(allRestaurant),
+        'allRestaurant_Count': Restaurant.objects.all().count(),
+        'allRestaurant': all_restaurants,
+        'today_weekday': opening_utility.today_opening_time(all_restaurants),
         'tags': tags,
     }
     return context
@@ -33,32 +32,31 @@ def baseContext(allRestaurant):
 def get_listing_page_context(request, page):
     """ Generate context of List and Grid functions """
     searched_key = request.GET.get('key')
-    allRestaurant = restaurant_utility.get_allRestaurant(searched_key, page)
+    all_restaurants = restaurant_utility.get_allRestaurant(searched_key, page)
 
     context = {'searched_key': searched_key, }
-    context.update(baseContext(allRestaurant))
+    context.update(base_context(all_restaurants))
 
     return context
 
 
 @http.require_GET
 def Home(request):
-    PopularRestaurant = yummy_models.Restaurant.objects.filter(
-        is_popular=True)[:6]
-    restaurant_count = yummy_models.Restaurant.objects.count()
+    popular_restaurant = Restaurant.objects.filter(is_popular=True)[:6]
+    restaurant_count = Restaurant.objects.count()
     user_count = get_user_model().objects.count()
-    served_count = ordering_models.Order.objects.filter(
-        is_paid=True).count()
+    served_count = ordering_models.Order.objects.filter(is_paid=True).count()
+
     context = {
-        'PopularRestaurant': PopularRestaurant,
+        'PopularRestaurant': popular_restaurant,
         'restaurant_count': restaurant_count,
         'user_count': user_count,
         'served_count': served_count,
-        'today_weekday': opening_utility.today_opening_time(
-            PopularRestaurant),
+        'today_weekday': opening_utility.today_opening_time(popular_restaurant),
     }
     welcomeMSG = request.user.get_full_name() if request.user.is_authenticated else ""
     messages.success(request, "Welcome " + welcomeMSG)
+
     return render(request, 'main_pages/home.html', context)
 
 
@@ -98,14 +96,22 @@ def Submit_driver(request):
         messages.error(request, 'You are submitted before')
         return redirect('home')
 
+    if request.method == 'GET':
+        form = DriverForm
+        context = {'form': form}
+        return render(request, 'submission/submit_driver.html', context)
+
     if request.method == 'POST':
         # Saving data of driver
-        form = yummy_forms.DriverForm(request.POST)
+        form = DriverForm(data=request.POST)
         if form.is_valid():
             driver = form.save(commit=False)
             driver.user = request.user
             driver.save()
-            request.user.isDriver = True
+
+            user = get_user_model().objects.get(email=request.user.email)
+            user.isDriver = True
+            user.save(update_fields=['isDriver'])
 
             # Getting emails of: admins
             admin_emails = get_user_model().objects.filter(
@@ -114,11 +120,11 @@ def Submit_driver(request):
             # Send email to [admin_email]
             context = {
                 'title': 'New request for driver',
-                'username': request.user.username,
-                'first_name': request.user.first_name,
-                'last_name': request.user.last_name,
-                'email': request.user.email,
-                'username_id': request.user.id,
+                'username': user.username,
+                'first_name': user.first_name,
+                'last_name': user.last_name,
+                'email': user.email,
+                'username_id': user.id,
             }
             EmailService.send_email(
                 title='New request for driver',
@@ -134,18 +140,7 @@ def Submit_driver(request):
             messages.error(request,
                            'We have a problem with your form\n'
                            'Please try again')
-            return render(request,
-                          'restaurant/../templates/ submission/submit_driver.html')
-    elif request.method == 'GET':
-        if not request.user.isDriver:
-            form = yummy_forms.DriverForm
-            context = {'form': form}
-            return render(request,
-                          'restaurant/../templates/ submission/submit_driver.html', context)
-
-        # User is: submitted driver
-        messages.error(request, 'You are submitted before')
-        return redirect('home')
+            return render(request, 'submission/submit_driver.html')
 
 
 @login_required
@@ -163,19 +158,22 @@ def Submit_restaurant(request):
         return redirect('home')
 
     if request.method == 'GET':
-        form = yummy_forms.SubmitRestaurantForm
+        form = SubmitRestaurantForm
         context = {'form': form, }
-        return render(request,
-                      'restaurant/../templates/ submission/submit_restaurant.html', context)
+        return render(request, 'submission/submit_restaurant.html', context)
 
-    elif request.method == 'POST':
-        form = yummy_forms.SubmitRestaurantForm(request.POST)
+    if request.method == 'POST':
+        form = SubmitRestaurantForm(data=request.POST, files=request.FILES)
+        form.owner = request.user
         if form.is_valid():
-            restaurant = form.save(commit=False)
-            restaurant.owner = request.user
-            restaurant.save()
+            user = get_user_model().objects.get(email=request.user.email)
 
-            request.user.update(IsOwner=True)
+            user.isOwner = True
+            user.save(update_fields=['isOwner'])
+
+            restaurant = form.save(commit=False)
+            restaurant.owner = user
+            restaurant.save()
 
             # Getting emails of: admins
             admin_emails = get_user_model().objects.filter(
@@ -184,10 +182,9 @@ def Submit_restaurant(request):
             # Send email to [admin_email]
             context = {
                 'title': 'New request for restaurant',
-                'email': request.user.email,
-                'username': request.user.username,
+                'email': user.email,
+                'username': user.username,
                 'restaurant_name': form.cleaned_data['name'],
-                'restaurant_city': form.cleaned_data['city'],
                 'restaurant_website': form.cleaned_data['website_url'],
                 'restaurant_id': restaurant.id,
             }
@@ -207,82 +204,77 @@ def Submit_restaurant(request):
 @http.require_GET
 def Detail_restaurant(request, Re_id):
     """ GET restaurant by ID and show the detail of it """
-    if request.method == 'GET':
-        form = yummy_forms.NewReviewForm
-        restaurant = yummy_models.Restaurant.objects.get(id=Re_id)
-        restaurant_img = yummy_models.RestaurantImage.objects.filter(
-            restaurant=restaurant).all()
-        Opening_time = yummy_models.OpeningTime.objects.filter(
-            restaurant=restaurant).values_list(
-            'weekday', 'from_hour', 'to_hour').all()
-        review = yummy_models.RestaurantReview.objects.filter(
-            restaurant=restaurant).all()
+    form = Review_Form
+    restaurant = Restaurant.objects.get(id=Re_id)
+    restaurant_img = RestaurantImage.objects.filter(
+        restaurant=restaurant).all()
+    opening_time = OpeningTime.objects.filter(
+        restaurant=restaurant).values_list(
+        'weekday', 'from_hour', 'to_hour').all()
+    review = RestaurantReview.objects.filter(
+        restaurant=restaurant).all()
 
+    data = {
+        'restaurant': restaurant,
+        'image': restaurant_img,
+        'today_weekday': opening_utility.get_opening_times(opening_time),
+        'mapbox_access_token': MAPBOX_KEY,
+        'review': review,
+        'form': form,
+    }
+    return render(request, 'restaurant/detail_restaurant.html', data)
+
+
+@http.require_POST
+@custom_decorators.required_ajax
+@login_required
+def Save_review(request, Re_id):
+    """ Save review of restaurant via AJAX """
+    restaurant = Restaurant.objects.get(id=Re_id)
+    review_by_user = RestaurantReview.objects.filter(restaurant=restaurant, user=request.user)
+    if review_by_user.exists():
+        return JsonResponse({'error': "You can't submit a review again"})
+
+    form = Review_Form(data=request.POST)
+    if form.is_valid():
+        review = form.save(commit=False)
+        review.user = request.user
+        review.restaurant = restaurant  # Restaurant.objects.get(id=id)
+        review.save()
+        # The success message is sent via ShowMessageAjax.
         data = {
-            'restaurant': restaurant,
-            'image': restaurant_img,
-            'today_weekday': opening_utility.get_opening_times(Opening_time),
-            'mapbox_access_token': MAPBOX_KEY,
-            'review': review,
-            'form': form,
+            'success': 'Your review is saved',
+            'review': review.description
         }
-        return render(request, 'restaurant/detail_restaurant.html', data)
+        return JsonResponse(data)
+    else:
+        # else => form is not valid
+        return JsonResponse({'error': 'Your form is not valid'})
 
 
 @http.require_GET
 def Search(request, page=1):
     """GET key from request and filter and paginate all restaurants by name """
     key = request.GET['key']
-    filteredRestaurant = yummy_models.Restaurant.objects.filter(
-        name__contains=key)
-    paginatedRestaurant = restaurant_utility.makePaginate(
-        objects=filteredRestaurant, page_number=page)
+    filtered_restaurant = Restaurant.objects.filter(name__contains=key).order_by('name')
+    paginated_restaurant = restaurant_utility.makePaginate(objects=filtered_restaurant,
+                                                           page_number=page)
 
     context = {'searched_key': key, }
-    context.update(baseContext(paginatedRestaurant))
+    context.update(base_context(paginated_restaurant))
     return render(request, 'restaurant/list_page.html', context=context)
-
-
-def Save_review(request, Re_id):
-    """ Save review of restaurant via AJAX """
-    if request.is_ajax() and request.method == 'POST':
-        restaurant = yummy_models.Restaurant.objects.get(id=Re_id)
-        form = yummy_forms.NewReviewForm(request.POST)
-        userReview = yummy_models.RestaurantReview.objects.filter(
-            user=request.user,
-            restaurant=restaurant)
-        if not userReview.exists():
-            if form.is_valid():
-                data = {}
-                review = form.save(commit=False)
-                review.author = request.user
-                review.restaurant = restaurant  # Restaurant.objects.get(id=id)
-                review.save()
-                # The success message is sent via ShowMessageAjax.
-                data['success'] = 'Your review is saved'
-                data['review'] = review.description
-                return JsonResponse(data)
-            else:
-                # else => form is not valid
-                print(colored(f'userReview is not valid ', 'red'))
-                return JsonResponse({'error': 'Your form is not valid'})
-        else:
-            # else => User want to submit second review
-            return JsonResponse({'error': "You can't submit a review again"})
 
 
 @http.require_GET
 def Search_tag(request, tag_slug, page=1):
-    """
-    GET tag_slug from url and search between all restaurants by tag name
-    """
-    filteredRestaurant = yummy_models.Restaurant.objects.filter(
+    """ GET tag_slug from url and search between all restaurants by tag name """
+    filtered_restaurants = Restaurant.objects.filter(
         tags__slug__in=[tag_slug]).order_by('name')
-    paginatedRestaurant = restaurant_utility.makePaginate(
-        filteredRestaurant, page)
+    paginated_restaurants = restaurant_utility.makePaginate(
+        filtered_restaurants, page)
 
     context = {'searched_tag': tag_slug, }
-    context.update(baseContext(paginatedRestaurant))
+    context.update(base_context(paginated_restaurants))
 
     if 'list_page' in request.path:
         return render(request, 'restaurant/list_page.html', context)
@@ -290,7 +282,8 @@ def Search_tag(request, tag_slug, page=1):
         return render(request, 'restaurant/grid_list.html', context)
 
 
-@http.require_GET
+@http.require_POST
+@custom_decorators.required_ajax
 def Sort_restaurants(request, page):
     """
     GET parameter from request:
@@ -302,40 +295,33 @@ def Sort_restaurants(request, page):
         Set the destination of request by
         the page that the request is coming from.
     """
-    mode = request.GET.get('mode', 'name')
+    mode = request.POST.get('mode', default='name')
     mode = 'rating' if mode == 'lower' else '-rating' if mode == 'higher' else 'name'
 
-    if request.GET.get('key') is not None:
-        allRestaurant = yummy_models.Restaurant.objects.filter(
-            name__contains=request.GET['key']).order_by(mode)
-    elif request.GET.get('tag') is not None:
-        allRestaurant = yummy_models.Restaurant.objects.filter(
-            tags__slug__in=[request.GET['tag']]).order_by(mode)
+    if request.POST.get('key') is not None:
+        all_restaurants = Restaurant.objects.filter(
+            name__contains=request.POST['key']).order_by(mode)
+    elif request.POST.get('tag') is not None:
+        all_restaurants = Restaurant.objects.filter(
+            tags__slug__in=[request.POST['tag']]).order_by(mode)
     else:
-        allRestaurant = yummy_models.Restaurant.objects.all().order_by(mode)
+        all_restaurants = Restaurant.objects.all().order_by(mode)
+
     context = {
-        'allRestaurant': restaurant_utility.makePaginate(allRestaurant, page),
-        'today_weekday': opening_utility.today_opening_time(allRestaurant),
+        'allRestaurant': restaurant_utility.makePaginate(all_restaurants, page),
+        'today_weekday': opening_utility.today_opening_time(all_restaurants),
     }
 
-    senderPath = request.GET.get('senderPath')
-    if '/list_page/' in senderPath:
-        render(request, "include/grid_list/list.html", context)
-    elif '/grid_list/' in senderPath:
-        render(request, 'include/grid_list/grid.html', context)
+    sender_path = request.POST.get('senderPath')
+    if '/list_page/' in sender_path:
+        return render(request, "include/grid_list/list.html", context)
+    elif '/grid_list/' in sender_path:
+        return render(request, 'include/grid_list/grid.html', context)
     else:
         return JsonResponse({}, status=400)
 
 
-class About_us(TemplateView):
-    template_name = 'main_pages/about_us.html'
-
-
-class Faq(TemplateView):
-    template_name = 'main_pages/faq.html'
-
-
-def Contacts(request):
+def contact_to_us(request):
     """
     GET: render contact page
     POST: Send email from user to admin
@@ -343,14 +329,14 @@ def Contacts(request):
     if request.method == "GET":
         return render(request, 'main_pages/contacts.html')
 
-    elif request.is_ajax() and request.method == "POST":
+    if request.method == "POST" and request.is_ajax():
         title = 'Email from user'
-        superUser_email = get_user_model().objects.filter(
+        super_user_emails = get_user_model().objects.filter(
             is_superuser=True).values_list('email', flat=True)
 
         EmailService.send_email(
             title=title,  # Title of email
-            to=superUser_email,
+            to=super_user_emails,
             context={
                 'title': title,  # Title of Email text
                 'name': request.POST.get('name', "'null'"),
@@ -358,5 +344,14 @@ def Contacts(request):
                 'email': request.POST.get('email', '#/'),
                 'text': request.POST.get('text', 'An error occurred'),
             },
-            template_name='email/UserEmail.html', )
-        return JsonResponse({})
+            template_name='email/UserEmail.html'
+        )
+        return JsonResponse({'success': "We received your emailThanks for your email", })
+
+
+class AboutUs(TemplateView):
+    template_name = 'main_pages/about_us.html'
+
+
+class Faq(TemplateView):
+    template_name = 'main_pages/faq.html'

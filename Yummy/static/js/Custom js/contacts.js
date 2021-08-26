@@ -6,10 +6,10 @@ $("#contactsForm").on('submit', function (e) {
         url: Url,
         type: 'POST',
         data: $(this).serialize(),
-        success: function () {
-            ShowMessageAjax('success',
-                "We received your emailThanks for your email",
-                3000);
+        success: function (data) {
+            if (data.success) {
+                ShowMessageAjax('success', data.success, 3000);
+            }
         },
         error: function () {
             alert('ERROR\nSorry, we have a problem');

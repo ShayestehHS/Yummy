@@ -53,7 +53,7 @@ class Restaurant(models.Model):
     def save(self, *args, **kwargs):
         self.logo = Compress.compress_image(self.logo, 30)
         self.full_clean()
-        if not self.pk:
+        if False and not self.pk:
             # on 'Create'
             geocoder = Geocoder(access_token=MAPBOX_KEY)
             response = geocoder.reverse(lat=self.lat, lon=self.long)
@@ -157,8 +157,9 @@ class RestaurantReview(models.Model):
                 self.food_quality + self.price + self.punctuality + self.courtesy)
         average_rating = ((last_average * count * 4) + sum_all_field) / (
                 4 * (count + 1))
-        restaurant = Restaurant.objects.filter(pk=self.restaurant.pk).first()
-        restaurant.save(rating=average_rating)
+        restaurant = Restaurant.objects.get(pk=self.restaurant.pk)
+        restaurant.rating = average_rating
+        restaurant.save(update_fields=['rating'])
         super(RestaurantReview, self).save(*args,
                                            **kwargs)  # Call the "real" save() method.
 
