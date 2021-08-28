@@ -4,6 +4,7 @@ from ckeditor.fields import RichTextField
 from django.db import models
 from mapbox import Geocoder
 from taggit.managers import TaggableManager
+from Yummy_site.settings import TESTING
 
 from Yummy_site import settings
 from Yummy_site.settings import MAPBOX_KEY
@@ -53,8 +54,8 @@ class Restaurant(models.Model):
     def save(self, *args, **kwargs):
         self.logo = Compress.compress_image(self.logo, 30)
         self.full_clean()
-        if False and not self.pk:
-            # on 'Create'
+        if not TESTING and not self.pk:
+            # on 'Create' or TESTING is False
             geocoder = Geocoder(access_token=MAPBOX_KEY)
             response = geocoder.reverse(lat=self.lat, lon=self.long)
             features = sorted(response.geojson()['features'],

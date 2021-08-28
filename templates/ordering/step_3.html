@@ -93,7 +93,7 @@
 								</td>
 								<td>
 									<strong class="pull-right">$
-										{% if order_detail.deliveryMethod == "Delivery" %}
+										{% if order_detail.delivery_method == "Delivery" %}
 										{{ order_list.restaurant.delivery_charge }}
 										{% else %}
 										0
@@ -112,7 +112,7 @@
 							</td>
 							<td>
 								<strong class="pull-right">
-									{{ order_detail.deliveryDay }} {{ order_detail.deliveryTime }}
+									{{ order_detail.delivery_day }} {{ order_detail.delivery_time }}
 								</strong>
 							</td>
 						</tr>

@@ -226,7 +226,7 @@ def Detail_restaurant(request, Re_id):
 
 
 @http.require_POST
-@custom_decorators.required_ajax
+@custom_decorators.require_ajax
 @login_required
 def Save_review(request, Re_id):
     """ Save review of restaurant via AJAX """
@@ -283,7 +283,7 @@ def Search_tag(request, tag_slug, page=1):
 
 
 @http.require_POST
-@custom_decorators.required_ajax
+@custom_decorators.require_ajax
 def Sort_restaurants(request, page):
     """
     GET parameter from request:

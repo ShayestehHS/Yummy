@@ -1,5 +1,6 @@
 import os
 
+import sys
 from ._settings import *
 
 INSTALLED_APPS += [
@@ -30,6 +31,8 @@ INSTALLED_APPS += [
     'Menu.apps.MenuConfig',
     'Ordering.apps.OrderingConfig',
 ]
+
+TESTING = len(sys.argv) > 1 and sys.argv[1] == 'test'
 
 AUTH_USER_MODEL = 'Users.User'
 SITE_ID = 1

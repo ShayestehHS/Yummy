@@ -3,95 +3,106 @@ from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse, HttpResponseRedirect
 from django.shortcuts import render, redirect
 from django.urls import reverse
+from django.views.decorators import http
 from termcolor import colored
 
 from Menu.models import Item
+from Ordering.forms import Step1Form
 from Ordering.models import CartItem, Order, OrderDetail
+from utility import custom_decorators
 
 
 @login_required
 def Step_1(request):
+    """
+        GET: Rendering the step_1 page
+        POST: Save the OrderDetail of Order object
+    """
     order = Order.objects.get(user=request.user, is_paid=False)
     if request.method == "GET":
-        if order.cartItems.count() > 0:
-            order_detail = OrderDetail.objects.filter(order=order).first()
-            return render(request, 'ordering/step_1.html', {'order_list': order,
-                                                             'order_detail': order_detail})
-        else:
-            # else => order_list is empty
-            messages.error(request,"Your order list is empty")
+        if order.cartItems.count() == 0:
+            messages.error(request, "Your order list is empty")
             return redirect('home')
 
+        form = Step1Form()
+        delivery_charge = Order.objects.get(user=request.user).restaurant.delivery_charge
+        return render(request, 'ordering/step_1.html', {'order_list': order,
+                                                        'delivery_charge': delivery_charge,
+                                                        'form': form})
+
     elif request.method == 'POST':
-        order_detail = OrderDetail.objects.get_or_create(order=order)[0]
-        order_detail.telephone = request.POST['tel_order']
-        order_detail.full_address = request.POST['address_order']
-        order_detail.postal_code = request.POST['pcode_order']
-        order_detail.deliveryDay = request.POST['delivery_schedule_day']
-        order_detail.deliveryTime = request.POST['delivery_schedule_time']
-        order_detail.description = request.POST.get('notes')
-        order_detail.deliveryMethod = request.POST['method']
-        order_detail.save()
+        form = Step1Form(data=request.POST)
+
+        if not form.is_valid():
+            messages.error(request, 'Your data is invalid')
+            return HttpResponseRedirect(reverse('step_1'))
+
+        step1_data = form.save(commit=False)
+        step1_data.order = order
+        step1_data.save()
+
         return HttpResponseRedirect(reverse('step_2'))
 
 
 @login_required
 def Step_2(request):
-    if request.method == 'GET':
+    if request.method == "GET":
         order_detail = OrderDetail.objects.filter(order__user=request.user)
-        if order_detail.exists():
-            order_detail = order_detail.first()
-            order = Order.objects.get(user=request.user, is_paid=False)
-            return render(request, 'ordering/step_2.html', {'order_list': order,
-                                                             'order_detail': order_detail})
-        else:
-            messages.error(request, 'You have to complete step_one first.')
+        if not order_detail.exists():
+            messages.error(request, 'You have to complete step_one first')
             return HttpResponseRedirect(reverse('step_1'))
 
+        order = Order.objects.get(user=request.user, is_paid=False)
+        order_detail = order_detail.first()
+        delivery_charge = Order.objects.get(user=request.user).restaurant.delivery_charge
+        return render(request, 'ordering/step_2.html', {'order_list': order,
+                                                        'delivery_charge': delivery_charge,
+                                                        'order_detail': order_detail})
+    elif request.method == "POST":
+        payment_page = None  # Payment page is not applied yet
+        if payment_page:
+            return payment_page
 
+        return HttpResponseRedirect(reverse('step_3'))
+
+
+@http.require_GET
 @login_required
 def Step_3(request):
-    if request.method == 'GET':
-        try:
-            order = Order.objects.get(user=request.user, is_paid=False)
-        except Order.DoesNotExist:
-            return redirect('home')
-        except Order.MultipleObjectsReturned:
-            print(colored(f'We have an error in ( Ordering => views => Step_3 )', 'red'))
-            Order.objects.filter(user=request.user).delete()
-            Order.objects.create(user=request.user)
-            messages.success(request, "Your order is on the way.")
-            return redirect('home')
-        order.is_paid = True
-        order.save(update_fields=['is_paid'])
-        context = {
-            'order_list': order,
-            'cartItems': order.cartItems.all(),
-            'order_detail': OrderDetail.objects.get(order=order),
-        }
-        response = render(request, 'ordering/step_3.html', context)
-        Order.objects.create(user=request.user, is_paid=False)
-        return response
+    old_order = Order.objects.get(user=request.user, is_paid=False)
+    old_order.is_paid = True
+    old_order.save(update_fields=['is_paid'])
+
+    Order.objects.create(user=request.user, is_paid=False)
+
+    context = {
+        'order_list': old_order,
+        'cartItems': old_order.cartItems.all(),
+        'order_detail': OrderDetail.objects.get(order=old_order),
+    }
+    messages.success(request, "Your order is on the way")
+    return render(request, 'ordering/step_3.html', context)
 
 
+@http.require_POST
+@custom_decorators.require_ajax
 def UpdateCarts(request):
-    if request.is_ajax() and request.method == 'POST':
-        item_id = request.POST["item_id"]
-        item_mode = request.POST["item_mode"]
-        order = Order.objects.get_or_create(user=request.user, is_paid=False)[0]
-        item = Item.objects.get(id=item_id)
-        cart_item = CartItem.objects.filter(order=order, item=item)
+    """ Add or Remove Item from order_list by AJAX """
+    item_id = request.POST["item_id"]
+    item_mode = request.POST["item_mode"]
+    order, created = Order.objects.get_or_create(user=request.user, is_paid=False)
+    item = Item.objects.select_related('menu__restaurant').get(id=item_id)
 
-        if order.restaurant is None:
-            order.restaurant = item.menu.restaurant
-            order.restaurant.save()
-        elif order.restaurant != item.menu.restaurant:
-            return JsonResponse({"errorMsg": f"This item does not belong to '{order.restaurant}'"})
+    if created or order.restaurant is None:  # restaurant is None => First time of adding Item to order_list
+        order.restaurant = item.menu.restaurant
+        order.restaurant.save()
+    elif order.restaurant != item.menu.restaurant:
+        return JsonResponse({"errorMsg": f"This item does not belong to '{order.restaurant}'"})
 
-        cart_item = cart_item.first() if cart_item.exists() else CartItem(order=order, item=item)
-        quantity = cart_item.Add() if item_mode == "+" else cart_item.Remove() or 0
-        data = {
-            "quantity": quantity,
-            "total_price": cart_item.total_price,
-        }
-        return JsonResponse(data)
+    cart_item = CartItem.objects.get_or_create(order=order, item=item)[0]
+    quantity = cart_item.Add() if item_mode == "plus" else cart_item.Remove() or 0
+    data = {
+        "quantity": quantity,
+        "total_price": cart_item.total_price,
+    }
+    return JsonResponse(data)

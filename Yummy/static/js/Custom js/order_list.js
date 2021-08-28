@@ -37,23 +37,6 @@ function RefreshTable(d_charge = 0) {
 $(document).ready(function () {
     const d_charge = ($("#td_DCharge").is(":hidden")) ? 0 : parseFloat($("#delivery_charge").val());
     RefreshTable(d_charge);
-    // In step_1.html:
-    // Set value for fields if (order_detail) is exists
-    const scheduleDay_value = $("#selected_dDay").val(); // Check order_detail is exists
-    const step1 = $('#Step1_form'); // Check page that is order_1
-    if (step1.length && scheduleDay_value != null) {
-        const scheduleDay_select = step1.find("#delivery_schedule_day");
-        scheduleDay_select.val(scheduleDay_value).change();
-
-        const DeliveryTime_value = $("#selected_dTime").val();
-        const DeliveryTime_select = $("#delivery_schedule_time");
-        DeliveryTime_select.val(DeliveryTime_value).change();
-
-        const DeliveryMethod_value = $("#selected_dMethod").val();
-        const DeliveryMethod_select = $("#delivery_method");
-        DeliveryMethod_select.val(DeliveryMethod_value).change();
-    }
-
 });
 const Url_ajax = $('#url_removeItem').data('url_ajax');
 
@@ -65,7 +48,7 @@ $('#order_table').on('click', '.remove_item', function () {
         type: 'POST',
         url: Url_ajax,
         data: {
-            item_mode: '-',
+            item_mode: 'minus',
             item_id: item_id,
         },
         dataType: 'json',
@@ -94,7 +77,7 @@ $('.add_to_cart').on('click', function () {
         type: 'POST',
         url: Url_ajax,
         data: {
-            item_mode: '+',
+            item_mode: 'plus',
             item_id: item_id,
         },
         dataType: 'json',
@@ -127,11 +110,12 @@ $('.add_to_cart').on('click', function () {
 })
 
 
-// Select option in step_1.html
+// Show delivery_charge if ( method == Delivery ) << in step_1.html >>
 $('#delivery_method').change(function () {
     const d_charge = $('.d_charge');
     if ($(this).val() === "Delivery") {
         const delivery_charge = $("#delivery_charge").val();
+        alert(delivery_charge)
         RefreshTable(parseFloat(delivery_charge));
         d_charge.find("#d_charge").html("$" + delivery_charge);
         d_charge.show('slow');

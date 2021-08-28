@@ -48,9 +48,11 @@ class Item(models.Model):
 
     def save(self, *args, **kwargs):
         self.full_clean()
+        if not self.pk:  # on 'Create'
+            self.picture = compress_image(self.picture, 50)
 
-        self.picture = compress_image(self.picture, 50)
         super(Item, self).save(*args, **kwargs)
 
-    def __str__(self):
-        return self.name
+
+def __str__(self):
+    return self.name

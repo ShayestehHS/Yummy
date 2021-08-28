@@ -73,10 +73,13 @@ class SignUpTest(TestCase):
         """ Test when the user signing up, the order of the user is ready """
         user_data = create_data('orderModel', 'order@email.com', conf=True)
 
-        res = self.client.post(signUp_url, data=user_data)
-        filtered_user = get_user_model().objects.get(email=user_data['email'])
+        res_redirect = self.client.post(signUp_url, data=user_data)
+        created_user = get_user_model().objects.get(email=user_data['email'])
+        res = self.client.post(res_redirect['location'],
+                               data={'Email_Code': created_user.confirmEmailCode,
+                                     'UserCode': created_user.uniqueCode, }, )
 
-        self.assertIsNotNone(filtered_user.cart)
+        self.assertIsNotNone(get_user_model().objects.get(email=user_data['email']).order_set)
 
     def test_SignUp_user_with_exists_email(self):
         """ Test signUp function with exists email is fail """

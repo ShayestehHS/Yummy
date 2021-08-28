@@ -1,7 +1,7 @@
 from django.http import HttpResponseBadRequest
 
 
-def required_ajax(f):
+def require_ajax(f):
     """
     AJAX request required decorator
     use it in your views:

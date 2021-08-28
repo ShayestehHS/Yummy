@@ -53,7 +53,7 @@ def Confirm_email(request, UserCode):
             user.isConfirmEmail = True
             user.uniqueCode = uuid.uuid4().hex[:16].upper()
             user.confirmEmailCode = MakeConfirmEmailCode(6)
-            user.cart = Order.objects.create(user=user)
+            user.order_set_id = Order.objects.create(user=user).id
             user.save(
                 update_fields=['is_active', 'isConfirmEmail',
                                'uniqueCode', 'confirmEmailCode', ])

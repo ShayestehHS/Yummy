@@ -42,11 +42,10 @@
 	<table class="table table_summary">
 		<tbody>
 		<tr>
-			<input type="hidden" id="delivery_charge" value="{{ order_list.restaurant.delivery_charge }}">
-			<td class="d_charge"
-			    {% if not order_detail.deliveryMethod == 'Delivery' %}hidden{% endif %}>
+			<input type="hidden" id="delivery_charge" value="{{ delivery_charge }}">
+			<td class="d_charge" hidden>
 				Delivery charge <span id="td_DCharge" class="pull-right"
-			>${{ order_detail.order.restaurant.delivery_charge }}</span>
+			>${{ delivery_charge }}</span>
 			</td>
 		</tr>
 		<tr>
@@ -58,7 +57,7 @@
 	</table>
 	<hr>
 </div>
-<input type="hidden" id="url_removeItem" data-url_ajax="{% url 'UpdateCarts' %}">
+<input type="hidden" id="url_removeItem" data-url_ajax="{% url 'updateCarts' %}">
 <script>
     // If restaurant doesn't have take_away => user cannot to check it
     // If restaurant doesn't have delivery => user cannot to check it
