@@ -1,6 +1,7 @@
 import os
 
 import sys
+
 from ._settings import *
 
 INSTALLED_APPS += [
@@ -33,6 +34,12 @@ INSTALLED_APPS += [
 ]
 
 TESTING = len(sys.argv) > 1 and sys.argv[1] == 'test'
+if DEBUG:
+    import mimetypes
+
+    mimetypes.add_type("application/javascript", ".js", True)
+    INTERNAL_IPS = ('127.0.0.1',)
+    INSTALLED_APPS += ['debug_toolbar']
 
 AUTH_USER_MODEL = 'Users.User'
 SITE_ID = 1
